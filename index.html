@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aesthetiQ — Analytics Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d14;
+    --surface: #13131f;
+    --surface2: #1a1a2e;
+    --border: #252540;
+    --purple: #7c5cbf;
+    --purple-light: #9b7de0;
+    --purple-dim: #2d1f5e;
+    --purple-glow: rgba(124, 92, 191, 0.15);
+    --pink: #e060a0;
+    --teal: #38c9b0;
+    --amber: #f5a623;
+    --text: #e8e8f0;
+    --text-muted: #8888aa;
+    --text-dim: #555570;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── TOP NAV ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--purple-light); font-style: italic; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .nav-tab {
+    padding: 7px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border: none;
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .nav-tab.active {
+    background: var(--purple);
+    color: white;
+  }
+  .nav-tab:hover:not(.active) { color: var(--text); background: var(--border); }
+
+  .header-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .header-meta strong { color: var(--text-muted); }
+
+  /* ── LAYOUT ── */
+  .page { display: none; padding: 28px 32px; }
+  .page.active { display: block; }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  /* ── STAT PILLS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 20px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--purple-light));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .stat-card:hover::before { opacity: 1; }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .stat-value {
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-delta {
+    font-size: 12px;
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .stat-delta.neutral { color: var(--text-dim); }
+  .stat-delta::before { content: '↑'; font-size: 11px; }
+  .stat-delta.neutral::before { content: '—'; }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 16px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  /* ── FACE MAP ── */
+  .face-map-wrap {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .face-svg-container { position: relative; }
+  .face-svg-container svg { width: 100%; }
+  .face-zone {
+    fill: var(--purple-dim);
+    stroke: var(--purple);
+    stroke-width: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .face-zone:hover { fill: var(--purple); }
+  .face-zone.hot1 { fill: #4a2a8a; opacity: 0.9; }
+  .face-zone.hot2 { fill: #6040a8; opacity: 0.85; }
+  .face-zone.hot3 { fill: #7c5cbf; opacity: 0.8; }
+  .face-zone.hot4 { fill: #9b7de0; opacity: 0.75; }
+  .face-zone.hot5 { fill: #baa4ec; opacity: 0.6; }
+
+  .face-legend { display: flex; flex-direction: column; gap: 8px; }
+  .face-legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .face-legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .face-legend-label { font-size: 13px; flex: 1; }
+  .face-legend-bar-wrap {
+    flex: 1;
+    background: var(--border);
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .face-legend-bar {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--purple-light));
+  }
+  .face-legend-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--purple-light);
+    width: 36px;
+    text-align: right;
+  }
+
+  /* ── COMBO CHIPS ── */
+  .combo-list { display: flex; flex-direction: column; gap: 10px; }
+  .combo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .combo-rank {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    width: 18px;
+    text-align: right;
+  }
+  .combo-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .chip {
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--purple-dim);
+    color: var(--purple-light);
+    border: 1px solid var(--purple);
+  }
+  .combo-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .combo-pct { font-size: 11px; color: var(--text-dim); }
+
+  /* ── CLINIC TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+    padding: 0 12px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 12px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: middle;
+  }
+  .data-table tr:hover td { background: var(--surface2); }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .clinic-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  .sparkbar {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 20px;
+  }
+  .sparkbar-col {
+    width: 4px;
+    border-radius: 2px 2px 0 0;
+    background: var(--purple);
+    opacity: 0.6;
+  }
+  .sparkbar-col.peak { opacity: 1; }
+  .trend-up { color: var(--teal); font-size: 12px; }
+  .trend-flat { color: var(--text-dim); font-size: 12px; }
+
+  /* ── HEATMAP ── */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr);
+    gap: 3px;
+  }
+  .hm-header {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 4px 0;
+    font-weight: 600;
+  }
+  .hm-row-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+  }
+  .hm-cell {
+    border-radius: 4px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: transform 0.15s;
+    cursor: default;
+  }
+  .hm-cell:hover { transform: scale(1.08); z-index: 10; position: relative; }
+
+  /* ── PROTOCOL PILLS ── */
+  .protocol-list { display: flex; flex-direction: column; gap: 12px; }
+  .protocol-item { }
+  .protocol-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+  }
+  .protocol-name { font-size: 13px; font-weight: 500; }
+  .protocol-stats { font-size: 12px; color: var(--text-dim); }
+  .protocol-bar-bg {
+    background: var(--border);
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .protocol-bar { height: 100%; border-radius: 4px; }
+
+  /* ── CHART CONTAINERS ── */
+  .chart-wrap { position: relative; height: 220px; }
+  .chart-wrap.tall { height: 260px; }
+  .chart-wrap.short { height: 160px; }
+
+  /* ── AGE BAND ── */
+  .age-band-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .age-band {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .age-band-range {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .age-band-pct {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -1px;
+  }
+
+  /* ── NOTICE BANNER ── */
+  .notice {
+    background: rgba(245, 166, 35, 0.08);
+    border: 1px solid rgba(245, 166, 35, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #c8922a;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── CLINIC PER-VIEW ── */
+  .clinic-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .clinic-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .clinic-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .clinic-btn.active {
+    border-color: var(--purple);
+    background: var(--purple-glow);
+    color: var(--text);
+  }
+  .clinic-btn:hover:not(.active) { border-color: var(--purple); color: var(--text); }
+
+  .clinic-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insights-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .insight-card {
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .insight-icon { font-size: 20px; margin-bottom: 10px; }
+  .insight-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .insight-body { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .insight-body strong { color: var(--purple-light); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-purple { background: var(--purple-dim); color: var(--purple-light); border: 1px solid var(--purple); }
+  .badge-teal { background: rgba(56, 201, 176, 0.1); color: var(--teal); border: 1px solid rgba(56, 201, 176, 0.3); }
+  .badge-amber { background: rgba(245, 166, 35, 0.1); color: var(--amber); border: 1px solid rgba(245, 166, 35, 0.3); }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">aestheti<span>Q</span></div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('master')">Master View</button>
+    <button class="nav-tab" onclick="showPage('clinic')">Per Clinic</button>
+  </nav>
+  <div class="header-meta">Data as of <strong>April 2026</strong> · Sample / dummy data</div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════ MASTER VIEW -->
+<div class="page active" id="page-master">
+
+  <div class="page-title">Platform Overview</div>
+  <div class="page-subtitle">All clinics · All submissions · April 2026</div>
+
+  <div class="notice">⚠ This dashboard uses representative dummy data. Replace with live Google Sheets / Form responses data feed before sharing externally.</div>
+
+  <!-- STAT PILLS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Submissions</div>
+      <div class="stat-value" style="color: var(--purple-light)">247</div>
+      <div class="stat-delta">+38 this month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completion Rate</div>
+      <div class="stat-value" style="color: var(--teal)">91%</div>
+      <div class="stat-delta">+4pp vs last month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Clinics</div>
+      <div class="stat-value">4</div>
+      <div class="stat-delta neutral">1 onboarding</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Areas Tapped</div>
+      <div class="stat-value">3.2</div>
+      <div class="stat-delta">per submission</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Most Common Protocol</div>
+      <div class="stat-value" style="color: var(--pink); font-size: 22px; letter-spacing: -0.5px; padding-top: 6px">Skin Quality</div>
+      <div class="stat-delta neutral">44% of outcomes</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: FACE MAP + COMBOS -->
+  <div class="grid-3-1">
+
+    <div class="card">
+      <div class="card-title">Areas of Concern — Face Map</div>
+      <div class="card-desc">% of all submissions that tapped each area</div>
+      <div class="face-map-wrap">
+        <div class="face-svg-container">
+          <!-- Simplified face SVG with hotspot zones -->
+          <svg viewBox="0 0 160 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- Head outline -->
+            <ellipse cx="80" cy="110" rx="58" ry="70" fill="#1a1a2e" stroke="#252540" stroke-width="1.5"/>
+            <!-- Neck -->
+            <rect x="62" y="174" width="36" height="35" rx="6" fill="#1a1a2e" stroke="#252540" stroke-width="1.5"/>
+            <!-- Forehead — HOT1 -->
+            <ellipse cx="80" cy="64" rx="44" ry="20" class="face-zone hot1" title="Forehead"/>
+            <text x="80" y="67" text-anchor="middle" fill="#e8e8f0" font-size="8" font-family="DM Sans">Forehead</text>
+            <!-- Eyes L+R — HOT3 -->
+            <ellipse cx="55" cy="98" rx="18" ry="9" class="face-zone hot3" title="Eyes"/>
+            <ellipse cx="105" cy="98" rx="18" ry="9" class="face-zone hot3" title="Eyes"/>
+            <text x="55" y="101" text-anchor="middle" fill="#e8e8f0" font-size="7" font-family="DM Sans">Eyes</text>
+            <text x="105" y="101" text-anchor="middle" fill="#e8e8f0" font-size="7" font-family="DM Sans">Eyes</text>
+            <!-- Cheeks — HOT2 -->
+            <ellipse cx="48" cy="128" rx="16" ry="14" class="face-zone hot2" title="Cheeks"/>
+            <ellipse cx="112" cy="128" rx="16" ry="14" class="face-zone hot2" title="Cheeks"/>
+            <text x="48" y="131" text-anchor="middle" fill="#e8e8f0" font-size="7" font-family="DM Sans">Cheeks</text>
+            <text x="112" y="131" text-anchor="middle" fill="#e8e8f0" font-size="7" font-family="DM Sans">Cheeks</text>
+            <!-- Lips — HOT4 -->
+            <ellipse cx="80" cy="148" rx="20" ry="10" class="face-zone hot4" title="Lips"/>
+            <text x="80" y="151" text-anchor="middle" fill="#e8e8f0" font-size="8" font-family="DM Sans">Lips</text>
+            <!-- Jawline — HOT5 -->
+            <path d="M38 150 Q80 185 122 150" fill="none" stroke="#7c5cbf" stroke-width="8" stroke-linecap="round" opacity="0.5" class="face-zone hot5" style="fill:transparent"/>
+            <!-- Chin — HOT5 -->
+            <ellipse cx="80" cy="170" rx="16" ry="9" class="face-zone hot5" title="Chin"/>
+            <text x="80" y="173" text-anchor="middle" fill="#e8e8f0" font-size="7" font-family="DM Sans">Chin</text>
+            <!-- Neck zone -->
+            <rect x="65" y="178" width="30" height="25" rx="4" class="face-zone hot5" title="Neck"/>
+            <text x="80" y="193" text-anchor="middle" fill="#e8e8f0" font-size="7" font-family="DM Sans">Neck</text>
+          </svg>
+        </div>
+
+        <div class="face-legend">
+          <div style="font-size:11px; color: var(--text-dim); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px">Top Areas</div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#4a2a8a"></div>
+            <span class="face-legend-label">Forehead</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:78%"></div></div>
+            <span class="face-legend-pct">78%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#6040a8"></div>
+            <span class="face-legend-label">Cheeks</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:71%"></div></div>
+            <span class="face-legend-pct">71%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#7c5cbf"></div>
+            <span class="face-legend-label">Eye area</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:65%"></div></div>
+            <span class="face-legend-pct">65%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#9b7de0"></div>
+            <span class="face-legend-label">Lips</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:54%"></div></div>
+            <span class="face-legend-pct">54%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#baa4ec"></div>
+            <span class="face-legend-label">Jawline</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:41%"></div></div>
+            <span class="face-legend-pct">41%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#5559aa"></div>
+            <span class="face-legend-label">Skin / texture</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:38%"></div></div>
+            <span class="face-legend-pct">38%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#3d3d6e"></div>
+            <span class="face-legend-label">Chin</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:22%"></div></div>
+            <span class="face-legend-pct">22%</span>
+          </div>
+          <div class="face-legend-item">
+            <div class="face-legend-dot" style="background:#2d2d50"></div>
+            <span class="face-legend-label">Neck</span>
+            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:17%"></div></div>
+            <span class="face-legend-pct">17%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Top Area Combinations</div>
+      <div class="card-desc">Most common multi-area selections</div>
+      <div class="combo-list">
+        <div class="combo-item">
+          <div class="combo-rank">1</div>
+          <div class="combo-chips">
+            <span class="chip">Forehead</span><span class="chip">Eye area</span>
+          </div>
+          <div>
+            <div class="combo-count">52</div>
+            <div class="combo-pct">21%</div>
+          </div>
+        </div>
+        <div class="combo-item">
+          <div class="combo-rank">2</div>
+          <div class="combo-chips">
+            <span class="chip">Cheeks</span><span class="chip">Lips</span>
+          </div>
+          <div>
+            <div class="combo-count">41</div>
+            <div class="combo-pct">17%</div>
+          </div>
+        </div>
+        <div class="combo-item">
+          <div class="combo-rank">3</div>
+          <div class="combo-chips">
+            <span class="chip">Forehead</span><span class="chip">Cheeks</span><span class="chip">Eye area</span>
+          </div>
+          <div>
+            <div class="combo-count">38</div>
+            <div class="combo-pct">15%</div>
+          </div>
+        </div>
+        <div class="combo-item">
+          <div class="combo-rank">4</div>
+          <div class="combo-chips">
+            <span class="chip">Skin / texture</span><span class="chip">Cheeks</span>
+          </div>
+          <div>
+            <div class="combo-count">29</div>
+            <div class="combo-pct">12%</div>
+          </div>
+        </div>
+        <div class="combo-item">
+          <div class="combo-rank">5</div>
+          <div class="combo-chips">
+            <span class="chip">Jawline</span><span class="chip">Chin</span><span class="chip">Cheeks</span>
+          </div>
+          <div>
+            <div class="combo-count">21</div>
+            <div class="combo-pct">8%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 2: SUBMISSIONS + PROTOCOL -->
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-title">Submissions Over Time</div>
+      <div class="card-desc">Weekly across all clinics</div>
+      <div class="chart-wrap">
+        <canvas id="submissionsChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Protocol Recommendations</div>
+      <div class="card-desc">Which pathway is triggered most</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center;">
+        <div class="chart-wrap" style="height:200px">
+          <canvas id="protocolDonut"></canvas>
+        </div>
+        <div class="protocol-list">
+          <div class="protocol-item">
+            <div class="protocol-header">
+              <span class="protocol-name">Skin Quality</span>
+              <span class="protocol-stats">109 &nbsp;<span style="color:var(--text-dim)">44%</span></span>
+            </div>
+            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:44%; background: linear-gradient(90deg, #e060a0, #f07ab0)"></div></div>
+          </div>
+          <div class="protocol-item">
+            <div class="protocol-header">
+              <span class="protocol-name">Wrinkle Relaxing</span>
+              <span class="protocol-stats">72 &nbsp;<span style="color:var(--text-dim)">29%</span></span>
+            </div>
+            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:29%; background: linear-gradient(90deg, #7c5cbf, #9b7de0)"></div></div>
+          </div>
+          <div class="protocol-item">
+            <div class="protocol-header">
+              <span class="protocol-name">Volumisation</span>
+              <span class="protocol-stats">41 &nbsp;<span style="color:var(--text-dim)">17%</span></span>
+            </div>
+            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:17%; background: linear-gradient(90deg, #38c9b0, #60dfcc)"></div></div>
+          </div>
+          <div class="protocol-item">
+            <div class="protocol-header">
+              <span class="protocol-name">Facial Contouring</span>
+              <span class="protocol-stats">25 &nbsp;<span style="color:var(--text-dim)">10%</span></span>
+            </div>
+            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:10%; background: linear-gradient(90deg, #f5a623, #f7be63)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 3: AGE + LOCATION -->
+  <div class="section-label">Demographics</div>
+
+  <div class="grid-2">
+
+    <div class="card">
+      <div class="card-title">Age Distribution</div>
+      <div class="card-desc">All submissions · estimated from intake responses</div>
+      <div class="age-band-grid">
+        <div class="age-band">
+          <div class="age-band-range">Under 25</div>
+          <div class="age-band-pct" style="color:var(--text-dim)">6%</div>
+        </div>
+        <div class="age-band">
+          <div class="age-band-range">25 – 34</div>
+          <div class="age-band-pct" style="color:#9b7de0">22%</div>
+        </div>
+        <div class="age-band" style="border-color: var(--purple); background: var(--purple-glow);">
+          <div class="age-band-range" style="color:var(--purple-light)">35 – 44</div>
+          <div class="age-band-pct" style="color:var(--purple-light)">41%</div>
+        </div>
+        <div class="age-band">
+          <div class="age-band-range">45 – 54</div>
+          <div class="age-band-pct" style="color:#9b7de0">24%</div>
+        </div>
+        <div class="age-band">
+          <div class="age-band-range">55+</div>
+          <div class="age-band-pct" style="color:var(--text-dim)">7%</div>
+        </div>
+      </div>
+      <div class="chart-wrap short">
+        <canvas id="ageChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Submissions by Location</div>
+      <div class="card-desc">City / suburb of submitting clinic</div>
+      <div class="chart-wrap">
+        <canvas id="locationChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 4: AGE × AREA HEATMAP -->
+  <div class="section-label">Cross-Analysis</div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Age Group × Area of Concern</div>
+    <div class="card-desc">% within each age group who tapped that area — darker = higher prevalence</div>
+    <div style="margin-top: 16px;">
+      <div class="heatmap-grid">
+        <div class="hm-header"></div>
+        <div class="hm-header">25–34</div>
+        <div class="hm-header">35–44</div>
+        <div class="hm-header">45–54</div>
+        <div class="hm-header">55+</div>
+        <div class="hm-header">Under 25</div>
+      </div>
+      <div id="heatmapGrid"></div>
+    </div>
+  </div>
+
+  <!-- CLINIC PERFORMANCE TABLE -->
+  <div class="section-label">Clinic Performance</div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Clinic Breakdown</div>
+    <div class="card-desc">Submissions, top area, dominant protocol, and trend per clinic</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Clinic</th>
+          <th>Location</th>
+          <th>Submissions</th>
+          <th>Top area</th>
+          <th>Top protocol</th>
+          <th>Avg age</th>
+          <th>4wk trend</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="clinic-dot" style="background:#7c5cbf"></span>Canvas Cosmetic</td>
+          <td style="color:var(--text-muted)">Perth, WA</td>
+          <td><strong>112</strong></td>
+          <td>Forehead</td>
+          <td>Wrinkle Relaxing</td>
+          <td>38</td>
+          <td>
+            <div class="sparkbar">
+              <div class="sparkbar-col" style="height:40%"></div>
+              <div class="sparkbar-col" style="height:55%"></div>
+              <div class="sparkbar-col" style="height:60%"></div>
+              <div class="sparkbar-col" style="height:70%"></div>
+              <div class="sparkbar-col peak" style="height:100%"></div>
+            </div>
+          </td>
+          <td><span class="badge badge-teal">Live</span></td>
+        </tr>
+        <tr>
+          <td><span class="clinic-dot" style="background:#38c9b0"></span>Clarity Skin Clinic</td>
+          <td style="color:var(--text-muted)">Melbourne, VIC</td>
+          <td><strong>74</strong></td>
+          <td>Skin / texture</td>
+          <td>Skin Quality</td>
+          <td>42</td>
+          <td>
+            <div class="sparkbar">
+              <div class="sparkbar-col" style="height:50%"></div>
+              <div class="sparkbar-col" style="height:60%"></div>
+              <div class="sparkbar-col" style="height:55%"></div>
+              <div class="sparkbar-col peak" style="height:80%"></div>
+              <div class="sparkbar-col" style="height:70%"></div>
+            </div>
+          </td>
+          <td><span class="badge badge-teal">Live</span></td>
+        </tr>
+        <tr>
+          <td><span class="clinic-dot" style="background:#e060a0"></span>The Aesthete</td>
+          <td style="color:var(--text-muted)">Sydney, NSW</td>
+          <td><strong>43</strong></td>
+          <td>Cheeks</td>
+          <td>Volumisation</td>
+          <td>36</td>
+          <td>
+            <div class="sparkbar">
+              <div class="sparkbar-col" style="height:80%"></div>
+              <div class="sparkbar-col" style="height:60%"></div>
+              <div class="sparkbar-col" style="height:50%"></div>
+              <div class="sparkbar-col" style="height:55%"></div>
+              <div class="sparkbar-col peak" style="height:65%"></div>
+            </div>
+          </td>
+          <td><span class="badge badge-teal">Live</span></td>
+        </tr>
+        <tr>
+          <td><span class="clinic-dot" style="background:#f5a623"></span>Glow Medi Clinic</td>
+          <td style="color:var(--text-muted)">Brisbane, QLD</td>
+          <td><strong>18</strong></td>
+          <td>Jawline</td>
+          <td>Facial Contouring</td>
+          <td>33</td>
+          <td>
+            <div class="sparkbar">
+              <div class="sparkbar-col" style="height:30%"></div>
+              <div class="sparkbar-col" style="height:35%"></div>
+              <div class="sparkbar-col peak" style="height:60%"></div>
+              <div class="sparkbar-col" style="height:50%"></div>
+              <div class="sparkbar-col" style="height:55%"></div>
+            </div>
+          </td>
+          <td><span class="badge badge-amber">New</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="section-label">Auto-generated Insights</div>
+  <div class="insights-row">
+    <div class="insight-card">
+      <div class="insight-icon">🎯</div>
+      <div class="insight-title">Highest intent age group</div>
+      <div class="insight-body"><strong>35–44</strong> year olds account for 41% of all submissions and have the highest multi-area selection rate (avg 3.8 areas). This group is ready to spend.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">⚡</div>
+      <div class="insight-title">Underserved area</div>
+      <div class="insight-body"><strong>Neck</strong> is selected by 17% of users but has no dedicated protocol. This may be causing drop-off or a mismatch in recommended pathways for these patients.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">📍</div>
+      <div class="insight-title">Protocol gap by location</div>
+      <div class="insight-body"><strong>Brisbane</strong> shows significantly higher Facial Contouring interest (38%) vs. the platform avg of 10%. Worth flagging to other clinic prospects in QLD.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ PER CLINIC -->
+<div class="page" id="page-clinic">
+
+  <div class="page-title">Clinic Dashboard</div>
+  <div class="page-subtitle">Individual clinic view — shareable with each clinic partner</div>
+
+  <div class="clinic-selector">
+    <button class="clinic-btn active" onclick="selectClinic(this, 'canvas')">
+      <span class="dot" style="background:#7c5cbf"></span>Canvas Cosmetic
+    </button>
+    <button class="clinic-btn" onclick="selectClinic(this, 'clarity')">
+      <span class="dot" style="background:#38c9b0"></span>Clarity Skin Clinic
+    </button>
+    <button class="clinic-btn" onclick="selectClinic(this, 'aesthete')">
+      <span class="dot" style="background:#e060a0"></span>The Aesthete
+    </button>
+    <button class="clinic-btn" onclick="selectClinic(this, 'glow')">
+      <span class="dot" style="background:#f5a623"></span>Glow Medi Clinic
+    </button>
+  </div>
+
+  <div id="clinicContent"></div>
+
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const clinics = {
+  canvas: {
+    name: "Canvas Cosmetic Clinic",
+    location: "Perth, WA",
+    color: "#7c5cbf",
+    submissions: 112,
+    completion: 94,
+    avgAreas: 3.4,
+    topProtocol: "Wrinkle Relaxing",
+    avgAge: 38,
+    areas: [78, 58, 72, 44, 39, 31, 18, 12],
+    protocols: [42, 28, 16, 14],
+    ages: [5, 20, 44, 24, 7],
+    weeklySubs: [8, 12, 9, 14, 18, 22, 29]
+  },
+  clarity: {
+    name: "Clarity Skin Clinic",
+    location: "Melbourne, VIC",
+    color: "#38c9b0",
+    submissions: 74,
+    completion: 89,
+    avgAreas: 2.9,
+    topProtocol: "Skin Quality",
+    avgAge: 42,
+    areas: [65, 44, 52, 71, 28, 58, 24, 19],
+    protocols: [12, 18, 58, 12],
+    ages: [4, 18, 38, 32, 8],
+    weeklySubs: [5, 9, 8, 12, 11, 14, 15]
+  },
+  aesthete: {
+    name: "The Aesthete",
+    location: "Sydney, NSW",
+    color: "#e060a0",
+    submissions: 43,
+    completion: 88,
+    avgAreas: 3.1,
+    topProtocol: "Volumisation",
+    avgAge: 36,
+    areas: [55, 71, 48, 62, 52, 22, 18, 9],
+    protocols: [22, 34, 36, 8],
+    ages: [8, 30, 42, 16, 4],
+    weeklySubs: [4, 6, 5, 8, 6, 7, 7]
+  },
+  glow: {
+    name: "Glow Medi Clinic",
+    location: "Brisbane, QLD",
+    color: "#f5a623",
+    submissions: 18,
+    completion: 94,
+    avgAreas: 3.6,
+    topProtocol: "Facial Contouring",
+    avgAge: 33,
+    areas: [60, 70, 44, 38, 55, 20, 38, 14],
+    protocols: [18, 26, 18, 38],
+    ages: [12, 34, 34, 16, 4],
+    weeklySubs: [1, 2, 3, 3, 4, 3, 2]
+  }
+};
+
+const areaNames = ["Forehead", "Cheeks", "Eye area", "Lips", "Jawline", "Skin/texture", "Chin", "Neck"];
+const protocolNames = ["Wrinkle Relaxing", "Volumisation", "Skin Quality", "Facial Contouring"];
+const protocolColors = ["#7c5cbf", "#38c9b0", "#e060a0", "#f5a623"];
+const ageLabels = ["Under 25", "25–34", "35–44", "45–54", "55+"];
+
+// ── HEATMAP DATA ─────────────────────────────────────────────────────────────
+const heatData = {
+  areas: ["Forehead", "Cheeks", "Eye area", "Lips", "Jawline", "Skin/texture", "Chin", "Neck"],
+  ageGroups: ["25–34", "35–44", "45–54", "55+", "Under 25"],
+  values: [
+    [65, 82, 85, 70, 40],  // Forehead
+    [60, 72, 75, 68, 50],  // Cheeks
+    [55, 68, 80, 75, 30],  // Eye area
+    [70, 52, 42, 35, 60],  // Lips
+    [35, 42, 44, 40, 28],  // Jawline
+    [42, 40, 36, 30, 35],  // Skin/texture
+    [28, 22, 20, 18, 24],  // Chin
+    [12, 16, 25, 28, 8],   // Neck
+  ]
+};
+
+function heatColor(v) {
+  const stops = [
+    [0, "#1a1a2e"],
+    [30, "#2d1f5e"],
+    [50, "#4a2a8a"],
+    [70, "#7c5cbf"],
+    [90, "#baa4ec"]
+  ];
+  for (let i = 1; i < stops.length; i++) {
+    if (v <= stops[i][0]) {
+      return stops[i][1];
+    }
+  }
+  return stops[stops.length-1][1];
+}
+
+function buildHeatmap() {
+  const container = document.getElementById('heatmapGrid');
+  heatData.areas.forEach(area => {
+    const row = document.createElement('div');
+    row.className = 'heatmap-grid';
+    row.style.marginBottom = '3px';
+    const label = document.createElement('div');
+    label.className = 'hm-row-label';
+    label.textContent = area;
+    row.appendChild(label);
+    const areaIdx = heatData.areas.indexOf(area);
+    heatData.ageGroups.forEach((ag, agIdx) => {
+      const v = heatData.values[areaIdx][agIdx];
+      const cell = document.createElement('div');
+      cell.className = 'hm-cell';
+      cell.style.background = heatColor(v);
+      cell.style.color = v > 50 ? '#e8e8f0' : '#8888aa';
+      cell.textContent = v + '%';
+      cell.title = `${area} · ${ag}: ${v}%`;
+      row.appendChild(cell);
+    });
+    container.appendChild(row);
+  });
+}
+buildHeatmap();
+
+// ── CHART DEFAULTS ───────────────────────────────────────────────────────────
+Chart.defaults.color = '#8888aa';
+Chart.defaults.font.family = 'DM Sans';
+
+// ── SUBMISSIONS CHART ────────────────────────────────────────────────────────
+new Chart(document.getElementById('submissionsChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Feb W1','Feb W2','Feb W3','Feb W4','Mar W1','Mar W2','Mar W3','Mar W4','Apr W1','Apr W2'],
+    datasets: [{
+      label: 'Submissions',
+      data: [12, 18, 14, 22, 24, 28, 32, 38, 41, 18],
+      backgroundColor: 'rgba(124, 92, 191, 0.6)',
+      borderColor: '#9b7de0',
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// ── PROTOCOL DONUT ───────────────────────────────────────────────────────────
+new Chart(document.getElementById('protocolDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: protocolNames,
+    datasets: [{ data: [29, 17, 44, 10], backgroundColor: protocolColors, borderWidth: 0, spacing: 3 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '68%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+// ── AGE CHART ────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('ageChart'), {
+  type: 'bar',
+  data: {
+    labels: ageLabels,
+    datasets: [{
+      data: [6, 22, 41, 24, 7],
+      backgroundColor: ['rgba(124,92,191,0.3)','rgba(124,92,191,0.5)','rgba(124,92,191,0.9)','rgba(124,92,191,0.5)','rgba(124,92,191,0.3)'],
+      borderColor: ['#7c5cbf','#7c5cbf','#baa4ec','#7c5cbf','#7c5cbf'],
+      borderWidth: 1, borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 10 }, callback: v => v+'%' } }
+    }
+  }
+});
+
+// ── LOCATION CHART ───────────────────────────────────────────────────────────
+new Chart(document.getElementById('locationChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Perth, WA','Melbourne, VIC','Sydney, NSW','Brisbane, QLD'],
+    datasets: [{
+      label: 'Submissions',
+      data: [112, 74, 43, 18],
+      backgroundColor: ['rgba(124,92,191,0.7)','rgba(56,201,176,0.7)','rgba(224,96,160,0.7)','rgba(245,166,35,0.7)'],
+      borderColor: ['#9b7de0','#38c9b0','#e060a0','#f5a623'],
+      borderWidth: 1, borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' } },
+      y: { grid: { display: false }, ticks: { font: { size: 12 } } }
+    }
+  }
+});
+
+// ── PER CLINIC VIEW ───────────────────────────────────────────────────────────
+let clinicCharts = [];
+
+function selectClinic(btn, id) {
+  document.querySelectorAll('.clinic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderClinic(id);
+}
+
+function renderClinic(id) {
+  const c = clinics[id];
+  clinicCharts.forEach(ch => ch.destroy());
+  clinicCharts = [];
+
+  document.getElementById('clinicContent').innerHTML = `
+    <div class="clinic-detail-grid">
+      <div class="stat-card">
+        <div class="stat-label">Submissions</div>
+        <div class="stat-value" style="color:${c.color}">${c.submissions}</div>
+        <div class="stat-delta">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completion Rate</div>
+        <div class="stat-value" style="color: var(--teal)">${c.completion}%</div>
+        <div class="stat-delta">started → finished</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Areas Tapped</div>
+        <div class="stat-value">${c.avgAreas}</div>
+        <div class="stat-delta">per submission</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Top Protocol</div>
+        <div class="stat-value" style="font-size:17px; letter-spacing:-0.3px; padding-top:8px; color:${c.color}">${c.topProtocol}</div>
+        <div class="stat-delta neutral">avg age ${c.avgAge}</div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">Weekly Submissions</div>
+        <div class="card-desc">Last 7 weeks</div>
+        <div class="chart-wrap short"><canvas id="c_submissions"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Protocol Mix</div>
+        <div class="card-desc">Recommended pathways</div>
+        <div class="chart-wrap short"><canvas id="c_protocols"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Age Distribution</div>
+        <div class="card-desc">Quiz respondents</div>
+        <div class="chart-wrap short"><canvas id="c_ages"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Area of Concern Breakdown</div>
+      <div class="card-desc">% of ${c.name} submissions tapping each area</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c_areas"></canvas></div>
+    </div>
+  `;
+
+  const chartOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+
+  clinicCharts.push(new Chart(document.getElementById('c_submissions'), {
+    type: 'line',
+    data: {
+      labels: ['W1','W2','W3','W4','W5','W6','W7'],
+      datasets: [{ data: c.weeklySubs, borderColor: c.color, backgroundColor: c.color+'30', fill: true, tension: 0.4, pointRadius: 3 }]
+    },
+    options: { ...chartOpts, scales: { x: { grid: { color: 'rgba(255,255,255,0.04)' } }, y: { grid: { color: 'rgba(255,255,255,0.04)' } } } }
+  }));
+
+  clinicCharts.push(new Chart(document.getElementById('c_protocols'), {
+    type: 'doughnut',
+    data: {
+      labels: protocolNames,
+      datasets: [{ data: c.protocols, backgroundColor: protocolColors, borderWidth: 0, spacing: 2 }]
+    },
+    options: { ...chartOpts, cutout: '60%' }
+  }));
+
+  clinicCharts.push(new Chart(document.getElementById('c_ages'), {
+    type: 'bar',
+    data: {
+      labels: ageLabels,
+      datasets: [{ data: c.ages, backgroundColor: c.color+'99', borderColor: c.color, borderWidth: 1, borderRadius: 3 }]
+    },
+    options: { ...chartOpts, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v+'%', font: { size: 9 } } } } }
+  }));
+
+  clinicCharts.push(new Chart(document.getElementById('c_areas'), {
+    type: 'bar',
+    data: {
+      labels: areaNames,
+      datasets: [{ data: c.areas, backgroundColor: c.color+'99', borderColor: c.color, borderWidth: 1, borderRadius: 3 }]
+    },
+    options: { ...chartOpts, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v+'%' } } } }
+  }));
+}
+
+// ── PAGE SWITCHING ────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && id === 'master') || (i === 1 && id === 'clinic'));
+  });
+  if (id === 'clinic') renderClinic('canvas');
+}
+</script>
+</body>
+</html>
