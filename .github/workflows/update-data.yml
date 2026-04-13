@@ -1,0 +1,39 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # runs every day at midnight UTC
+  workflow_dispatch:        # allows manual trigger from GitHub Actions tab
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Query BigQuery and save JSON
+        run: |
+          bq query \
+            --use_legacy_sql=false \
+            --format=json \
+            --project_id=aesthetiq-490506 \
+            "SELECT * FROM \`aesthetiq-490506.Prod_data.platform_kpis\`" \
+            > data/kpis.json
+
+      - name: Commit and push updated data
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add data/kpis.json
+          git diff --staged --quiet || git commit -m "chore: update dashboard data"
+          git push

@@ -532,32 +532,34 @@
   <div class="page-title">Platform Overview</div>
   <div class="page-subtitle">All clinics · All submissions · April 2026</div>
 
+  <div class="notice">⚠ This dashboard uses representative dummy data. Replace with live Google Sheets / Form responses data feed before sharing externally.</div>
+
   <!-- STAT PILLS -->
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-label">Total Submissions</div>
-      <div class="stat-value" id="kpi-total" style="color: var(--purple-light)">—</div>
-      <div class="stat-delta" id="kpi-total-delta">loading...</div>
+      <div class="stat-value" style="color: var(--purple-light)">247</div>
+      <div class="stat-delta">+38 this month</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Completion Rate</div>
-      <div class="stat-value" id="kpi-completion" style="color: var(--teal)">—</div>
-      <div class="stat-delta">of submissions saved</div>
+      <div class="stat-value" style="color: var(--teal)">91%</div>
+      <div class="stat-delta">+4pp vs last month</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Active Clinics</div>
-      <div class="stat-value">2</div>
+      <div class="stat-value">4</div>
       <div class="stat-delta neutral">1 onboarding</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Avg Areas Tapped</div>
-      <div class="stat-value" id="kpi-avg-areas">—</div>
+      <div class="stat-value">3.2</div>
       <div class="stat-delta">per submission</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Most Common Protocol</div>
       <div class="stat-value" style="color: var(--pink); font-size: 22px; letter-spacing: -0.5px; padding-top: 6px">Skin Quality</div>
-      <div class="stat-delta neutral">platform-wide</div>
+      <div class="stat-delta neutral">44% of outcomes</div>
     </div>
   </div>
 
@@ -1297,20 +1299,6 @@ function showPage(id) {
   });
   if (id === 'clinic') renderClinic('canvas');
 }
-
-// ── LIVE KPI DATA ─────────────────────────────────────────────────────────────
-fetch('./data/kpis.json')
-  .then(r => r.json())
-  .then(data => {
-    const kpi = Array.isArray(data) ? data[0] : data;
-    document.getElementById('kpi-total').textContent = kpi.total_submissions;
-    document.getElementById('kpi-completion').textContent = kpi.completion_rate + '%';
-    document.getElementById('kpi-avg-areas').textContent = kpi.avg_areas_per_consultation;
-    document.getElementById('kpi-total-delta').textContent = 'across all clinics';
-  })
-  .catch(() => {
-    document.getElementById('kpi-total-delta').textContent = 'data unavailable';
-  });
 </script>
 </body>
 </html>
