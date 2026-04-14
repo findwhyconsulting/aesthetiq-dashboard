@@ -40,7 +40,7 @@ areas_unpivoted AS (
 area_ranks AS (
   SELECT
     month, clinicId, area,
-    COUNT(DISTINCT _id) AS cnt,
+    COUNT(DISTINCT _id)                                                            AS cnt,
     ROW_NUMBER() OVER (PARTITION BY month, clinicId ORDER BY COUNT(DISTINCT _id) DESC) AS rn
   FROM areas_unpivoted
   GROUP BY month, clinicId, area
@@ -49,25 +49,47 @@ area_ranks AS (
 protocol_ranks AS (
   SELECT
     b.month, b.clinicId, p.packageName,
-    COUNT(*)            AS cnt,
-    ROW_NUMBER() OVER (PARTITION BY b.month, b.clinicId ORDER BY COUNT(*) DESC) AS rn
+    COUNT(*)                                                                       AS cnt,
+    ROW_NUMBER() OVER (PARTITION BY b.month, b.clinicId ORDER BY COUNT(*) DESC)   AS rn
   FROM base b
   JOIN `aesthetiq-490506.Prod_data.Packages` p ON b.recommandation = p._id
   GROUP BY b.month, b.clinicId, p.packageName
+),
+
+clinic_monthly_stats AS (
+  SELECT
+    month,
+    DATE_TRUNC(sub_date, MONTH)    AS period_start,
+    clinicId,
+    COUNT(DISTINCT _id)            AS total_submissions,
+    ROUND(AVG(age_midpoint), 0)    AS avg_age
+  FROM base
+  GROUP BY month, period_start, clinicId
+),
+
+top_areas AS (
+  SELECT month, clinicId, area AS top_area
+  FROM area_ranks
+  WHERE rn = 1
+),
+
+top_protocols AS (
+  SELECT month, clinicId, packageName AS top_protocol
+  FROM protocol_ranks
+  WHERE rn = 1
 )
 
 SELECT
-  b.month,
-  FORMAT_DATE('%B %Y', DATE_TRUNC(b.sub_date, MONTH))                          AS month_label,
-  u.clinicName                                                                  AS clinic_name,
-  COUNT(DISTINCT b._id)                                                         AS total_submissions,
-  MAX(IF(ar.rn = 1, ar.area, NULL))                                             AS top_area,
-  MAX(IF(pr.rn = 1, pr.packageName, NULL))                                      AS top_protocol,
-  ROUND(AVG(b.age_midpoint), 0)                                                 AS avg_age,
-  FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%SZ', CURRENT_TIMESTAMP())                  AS last_updated
-FROM base b
-JOIN `aesthetiq-490506.Prod_data.Users` u ON b.clinicId = u._id
-LEFT JOIN area_ranks ar ON b.month = ar.month AND b.clinicId = ar.clinicId
-LEFT JOIN protocol_ranks pr ON b.month = pr.month AND b.clinicId = pr.clinicId
-GROUP BY b.month, DATE_TRUNC(b.sub_date, MONTH), u.clinicName
-ORDER BY b.month DESC, total_submissions DESC
+  cms.month,
+  FORMAT_DATE('%B %Y', cms.period_start)                                         AS month_label,
+  u.clinicName                                                                   AS clinic_name,
+  cms.total_submissions,
+  ta.top_area,
+  tp.top_protocol,
+  cms.avg_age,
+  FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%SZ', CURRENT_TIMESTAMP())                   AS last_updated
+FROM clinic_monthly_stats cms
+JOIN `aesthetiq-490506.Prod_data.Users` u ON cms.clinicId = u._id
+LEFT JOIN top_areas ta     ON cms.month = ta.month     AND cms.clinicId = ta.clinicId
+LEFT JOIN top_protocols tp ON cms.month = tp.month     AND cms.clinicId = tp.clinicId
+ORDER BY cms.month DESC, cms.total_submissions DESC

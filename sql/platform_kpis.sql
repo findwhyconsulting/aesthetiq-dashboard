@@ -17,37 +17,51 @@ WITH base AS (
   WHERE isDeleted = FALSE
 ),
 
+monthly_stats AS (
+  SELECT
+    FORMAT_DATE('%Y-%m', submission_date)                                          AS month,
+    DATE_TRUNC(submission_date, MONTH)                                             AS period_start,
+    LAST_DAY(submission_date, MONTH)                                               AS period_end,
+    COUNT(*)                                                                       AS total_submissions,
+    ROUND(COUNTIF(isConsultationSaved = TRUE) * 100.0 / NULLIF(COUNT(*), 0), 1)   AS completion_rate,
+    ROUND(AVG(area_count), 1)                                                      AS avg_areas_per_consultation,
+    COUNT(DISTINCT clinicId)                                                       AS active_clinics
+  FROM base
+  GROUP BY month, period_start, period_end
+),
+
 protocol_ranks AS (
   SELECT
-    FORMAT_DATE('%Y-%m', DATE(c.createdAt))                                     AS month,
+    FORMAT_DATE('%Y-%m', DATE(c.createdAt))                                        AS month,
     p.packageName,
-    COUNT(*)                                                                    AS cnt,
+    COUNT(*)                                                                       AS cnt,
     ROW_NUMBER() OVER (
       PARTITION BY FORMAT_DATE('%Y-%m', DATE(c.createdAt))
       ORDER BY COUNT(*) DESC
-    )                                                                           AS rn
+    )                                                                              AS rn
   FROM `aesthetiq-490506.Prod_data.Consultations` c
   JOIN `aesthetiq-490506.Prod_data.Packages` p ON c.recommandation = p._id
   WHERE c.isDeleted = FALSE
   GROUP BY month, p.packageName
+),
+
+top_protocols AS (
+  SELECT month, packageName AS most_common_protocol
+  FROM protocol_ranks
+  WHERE rn = 1
 )
 
 SELECT
-  FORMAT_DATE('%Y-%m', b.submission_date)                                        AS month,
-  FORMAT_DATE('%B %Y', DATE_TRUNC(b.submission_date, MONTH))                     AS month_label,
-  DATE_TRUNC(b.submission_date, MONTH)                                           AS period_start,
-  LAST_DAY(b.submission_date, MONTH)                                             AS period_end,
-  COUNT(*)                                                                       AS total_submissions,
-  ROUND(COUNTIF(b.isConsultationSaved = TRUE) * 100.0 / NULLIF(COUNT(*), 0), 1) AS completion_rate,
-  ROUND(AVG(b.area_count), 1)                                                    AS avg_areas_per_consultation,
-  COUNT(DISTINCT b.clinicId)                                                     AS active_clinics,
-  MAX(IF(pr.rn = 1, pr.packageName, NULL))                                       AS most_common_protocol,
+  m.month,
+  FORMAT_DATE('%B %Y', m.period_start)                                           AS month_label,
+  m.period_start,
+  m.period_end,
+  m.total_submissions,
+  m.completion_rate,
+  m.avg_areas_per_consultation,
+  m.active_clinics,
+  t.most_common_protocol,
   FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%SZ', CURRENT_TIMESTAMP())                   AS last_updated
-FROM base b
-LEFT JOIN protocol_ranks pr
-  ON FORMAT_DATE('%Y-%m', b.submission_date) = pr.month
-GROUP BY
-  FORMAT_DATE('%Y-%m', b.submission_date),
-  DATE_TRUNC(b.submission_date, MONTH),
-  LAST_DAY(b.submission_date, MONTH)
-ORDER BY period_start DESC
+FROM monthly_stats m
+LEFT JOIN top_protocols t ON m.month = t.month
+ORDER BY m.period_start DESC
