@@ -89,6 +89,36 @@
   }
   .header-meta strong { color: var(--text-muted); }
 
+  /* ── DATE PERIOD FILTER ── */
+  .period-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .period-filter-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 4px;
+  }
+  .period-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .period-btn:hover:not(.active) { color: var(--text); border-color: var(--text-dim); background: var(--surface2); }
+  .period-btn.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); }
+
   /* ── LAYOUT ── */
   .page { display: none; padding: 28px 32px; }
   .page.active { display: block; }
@@ -530,7 +560,16 @@
 <div class="page active" id="page-master">
 
   <div class="page-title">Platform Overview</div>
-  <div class="page-subtitle">All clinics · All submissions · April 2026</div>
+  <div class="page-subtitle" id="master-subtitle">All clinics · All submissions · All Time</div>
+
+  <!-- DATE PERIOD FILTER -->
+  <div class="period-filter">
+    <span class="period-filter-label">Period</span>
+    <button class="period-btn active" data-period="all_time"     onclick="setPeriod('all_time')">All Time</button>
+    <button class="period-btn"        data-period="last_90_days" onclick="setPeriod('last_90_days')">Last 90 Days</button>
+    <button class="period-btn"        data-period="last_30_days" onclick="setPeriod('last_30_days')">Last 30 Days</button>
+    <button class="period-btn"        data-period="last_7_days"  onclick="setPeriod('last_7_days')">Last 7 Days</button>
+  </div>
 
   <!-- STAT PILLS -->
   <div class="stats-row">
@@ -1299,14 +1338,62 @@ function showPage(id) {
 }
 
 // ── LIVE KPI DATA ─────────────────────────────────────────────────────────────
+const kpiByPeriod = {};
+let activePeriod  = 'all_time';
+
+const PERIOD_LABELS = {
+  all_time:     'All Time',
+  last_90_days: 'Last 90 Days',
+  last_30_days: 'Last 30 Days',
+  last_7_days:  'Last 7 Days',
+};
+
+function setPeriod(period) {
+  activePeriod = period;
+  document.querySelectorAll('.period-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.period === period)
+  );
+  renderKpis();
+}
+
+function renderKpis() {
+  const kpi = kpiByPeriod[activePeriod];
+  const label = PERIOD_LABELS[activePeriod] || activePeriod;
+
+  if (!kpi) {
+    document.getElementById('kpi-total').textContent       = '—';
+    document.getElementById('kpi-completion').textContent  = '—';
+    document.getElementById('kpi-avg-areas').textContent   = '—';
+    document.getElementById('kpi-total-delta').textContent = 'no data for this period';
+    document.getElementById('master-subtitle').textContent = `All clinics · ${label} · no submissions`;
+    return;
+  }
+
+  document.getElementById('kpi-total').textContent      = kpi.total_submissions;
+  document.getElementById('kpi-completion').textContent = kpi.completion_rate + '%';
+  document.getElementById('kpi-avg-areas').textContent  = kpi.avg_areas_per_consultation;
+  document.getElementById('kpi-total-delta').textContent = 'across all clinics';
+
+  const start = activePeriod === 'all_time' ? 'inception' : kpi.period_start;
+  document.getElementById('master-subtitle').textContent =
+    `All clinics · ${label} · ${start} → ${kpi.period_end}`;
+}
+
 fetch('./data/kpis.json')
   .then(r => r.json())
   .then(data => {
-    const kpi = Array.isArray(data) ? data[0] : data;
-    document.getElementById('kpi-total').textContent = kpi.total_submissions;
-    document.getElementById('kpi-completion').textContent = kpi.completion_rate + '%';
-    document.getElementById('kpi-avg-areas').textContent = kpi.avg_areas_per_consultation;
-    document.getElementById('kpi-total-delta').textContent = 'across all clinics';
+    const arr = Array.isArray(data) ? data : [data];
+    arr.forEach(row => { kpiByPeriod[row.period] = row; });
+
+    const sample = arr[0];
+    if (sample && sample.last_updated) {
+      const d = new Date(sample.last_updated);
+      const fmt = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      document.querySelector('.header-meta').innerHTML =
+        `Data updated <strong>${fmt}</strong>`;
+    }
+
+    renderKpis();
   })
   .catch(() => {
     document.getElementById('kpi-total-delta').textContent = 'data unavailable';

@@ -1,9 +1,9 @@
 name: Update Dashboard Data
 
 on:
-  schedule:
-    - cron: '0 0 * * *'   # runs every day at midnight UTC
-  workflow_dispatch:        # allows manual trigger from GitHub Actions tab
+  # schedule:
+  #   - cron: '0 0 * * *'   # uncomment to re-enable daily schedule
+  workflow_dispatch:        # manually trigger from GitHub Actions tab
 
 jobs:
   update-data:
@@ -27,7 +27,7 @@ jobs:
             --use_legacy_sql=false \
             --format=json \
             --project_id=aesthetiq-490506 \
-            "SELECT * FROM \`aesthetiq-490506.Prod_data.platform_kpis\`" \
+            "$(cat sql/platform_kpis.sql)" \
             > data/kpis.json
 
       - name: Commit and push updated data
