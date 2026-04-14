@@ -25,6 +25,7 @@ SELECT
   COUNT(*)                                                                       AS total_submissions,
   ROUND(COUNTIF(isConsultationSaved = TRUE) * 100.0 / NULLIF(COUNT(*), 0), 1)   AS completion_rate,
   ROUND(AVG(area_count), 1)                                                      AS avg_areas_per_consultation,
+  COUNT(DISTINCT clinicId)                                                       AS active_clinics,
   FORMAT_TIMESTAMP('%Y-%m-%dT%H:%M:%SZ', CURRENT_TIMESTAMP())                   AS last_updated
 FROM base
 GROUP BY month, month_label, period_start, period_end

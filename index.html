@@ -590,8 +590,8 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Active Clinics</div>
-      <div class="stat-value">2</div>
-      <div class="stat-delta neutral">1 onboarding</div>
+      <div class="stat-value" id="kpi-clinics">—</div>
+      <div class="stat-delta neutral">this month</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Avg Areas Tapped</div>
@@ -1358,6 +1358,7 @@ function renderKpis() {
     document.getElementById('kpi-total').textContent       = '—';
     document.getElementById('kpi-completion').textContent  = '—';
     document.getElementById('kpi-avg-areas').textContent   = '—';
+    document.getElementById('kpi-clinics').textContent     = '—';
     document.getElementById('kpi-total-delta').textContent = 'no data for this month';
     document.getElementById('master-subtitle').textContent = 'All clinics · no submissions';
     return;
@@ -1366,9 +1367,9 @@ function renderKpis() {
   document.getElementById('kpi-total').textContent       = kpi.total_submissions;
   document.getElementById('kpi-completion').textContent  = kpi.completion_rate + '%';
   document.getElementById('kpi-avg-areas').textContent   = kpi.avg_areas_per_consultation;
+  document.getElementById('kpi-clinics').textContent     = kpi.active_clinics;
   document.getElementById('kpi-total-delta').textContent = 'across all clinics';
-  document.getElementById('master-subtitle').textContent =
-    `All clinics · ${kpi.month_label}`;
+  document.getElementById('master-subtitle').textContent = `All clinics · ${kpi.month_label}`;
 }
 
 fetch('./data/kpis.json')
