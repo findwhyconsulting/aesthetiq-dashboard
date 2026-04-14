@@ -21,19 +21,50 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Query BigQuery and save JSON
+      - name: KPI metrics
         run: |
-          bq query \
-            --use_legacy_sql=false \
-            --format=json \
-            --project_id=aesthetiq-490506 \
-            "$(cat sql/platform_kpis.sql)" \
-            > data/kpis.json
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/platform_kpis.sql)" > data/kpis.json
+
+      - name: Areas of concern
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_areas.sql)" > data/chart_areas.json
+
+      - name: Top area combinations
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_combos.sql)" > data/chart_combos.json
+
+      - name: Protocol recommendations
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_protocols.sql)" > data/chart_protocols.json
+
+      - name: Age distribution
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_demographics.sql)" > data/chart_age.json
+
+      - name: Age × Area cross analysis
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_cross.sql)" > data/chart_cross.json
+
+      - name: Weekly submissions trend
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_trend.sql)" > data/chart_trend.json
+
+      - name: Clinic breakdown
+        run: |
+          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
+            "$(cat sql/chart_clinics.sql)" > data/chart_clinics.json
 
       - name: Commit and push updated data
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add data/kpis.json
+          git add data/
           git diff --staged --quiet || git commit -m "chore: update dashboard data"
           git push
