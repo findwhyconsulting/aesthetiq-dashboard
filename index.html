@@ -89,35 +89,41 @@
   }
   .header-meta strong { color: var(--text-muted); }
 
-  /* ── DATE PERIOD FILTER ── */
-  .period-filter {
+  /* ── MONTH FILTER ── */
+  .month-filter {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
     margin-bottom: 20px;
   }
-  .period-filter-label {
+  .month-filter-label {
     font-size: 11px;
     font-weight: 500;
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-right: 4px;
   }
-  .period-btn {
-    padding: 5px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-muted);
+  .month-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--surface2);
     border: 1px solid var(--border);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.18s;
+    border-radius: 8px;
+    color: var(--text);
     font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 36px 7px 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.18s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    min-width: 160px;
   }
-  .period-btn:hover:not(.active) { color: var(--text); border-color: var(--text-dim); background: var(--surface2); }
-  .period-btn.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); }
+  .month-select:hover, .month-select:focus { border-color: var(--purple); }
+  .month-select option { background: var(--surface2); color: var(--text); }
 
   /* ── LAYOUT ── */
   .page { display: none; padding: 28px 32px; }
@@ -562,13 +568,12 @@
   <div class="page-title">Platform Overview</div>
   <div class="page-subtitle" id="master-subtitle">All clinics · All submissions · All Time</div>
 
-  <!-- DATE PERIOD FILTER -->
-  <div class="period-filter">
-    <span class="period-filter-label">Period</span>
-    <button class="period-btn active" data-period="all_time"     onclick="setPeriod('all_time')">All Time</button>
-    <button class="period-btn"        data-period="last_90_days" onclick="setPeriod('last_90_days')">Last 90 Days</button>
-    <button class="period-btn"        data-period="last_30_days" onclick="setPeriod('last_30_days')">Last 30 Days</button>
-    <button class="period-btn"        data-period="last_7_days"  onclick="setPeriod('last_7_days')">Last 7 Days</button>
+  <!-- MONTH FILTER -->
+  <div class="month-filter">
+    <span class="month-filter-label">Month</span>
+    <select class="month-select" id="month-select" onchange="setMonth(this.value)">
+      <option value="">Loading...</option>
+    </select>
   </div>
 
   <!-- STAT PILLS -->
@@ -1338,59 +1343,59 @@ function showPage(id) {
 }
 
 // ── LIVE KPI DATA ─────────────────────────────────────────────────────────────
-const kpiByPeriod = {};
-let activePeriod  = 'all_time';
+const kpiByMonth = {};
+let activeMonth = '';
 
-const PERIOD_LABELS = {
-  all_time:     'All Time',
-  last_90_days: 'Last 90 Days',
-  last_30_days: 'Last 30 Days',
-  last_7_days:  'Last 7 Days',
-};
-
-function setPeriod(period) {
-  activePeriod = period;
-  document.querySelectorAll('.period-btn').forEach(btn =>
-    btn.classList.toggle('active', btn.dataset.period === period)
-  );
+function setMonth(month) {
+  activeMonth = month;
   renderKpis();
 }
 
 function renderKpis() {
-  const kpi = kpiByPeriod[activePeriod];
-  const label = PERIOD_LABELS[activePeriod] || activePeriod;
+  const kpi = kpiByMonth[activeMonth];
 
   if (!kpi) {
     document.getElementById('kpi-total').textContent       = '—';
     document.getElementById('kpi-completion').textContent  = '—';
     document.getElementById('kpi-avg-areas').textContent   = '—';
-    document.getElementById('kpi-total-delta').textContent = 'no data for this period';
-    document.getElementById('master-subtitle').textContent = `All clinics · ${label} · no submissions`;
+    document.getElementById('kpi-total-delta').textContent = 'no data for this month';
+    document.getElementById('master-subtitle').textContent = 'All clinics · no submissions';
     return;
   }
 
-  document.getElementById('kpi-total').textContent      = kpi.total_submissions;
-  document.getElementById('kpi-completion').textContent = kpi.completion_rate + '%';
-  document.getElementById('kpi-avg-areas').textContent  = kpi.avg_areas_per_consultation;
+  document.getElementById('kpi-total').textContent       = kpi.total_submissions;
+  document.getElementById('kpi-completion').textContent  = kpi.completion_rate + '%';
+  document.getElementById('kpi-avg-areas').textContent   = kpi.avg_areas_per_consultation;
   document.getElementById('kpi-total-delta').textContent = 'across all clinics';
-
-  const start = activePeriod === 'all_time' ? 'inception' : kpi.period_start;
   document.getElementById('master-subtitle').textContent =
-    `All clinics · ${label} · ${start} → ${kpi.period_end}`;
+    `All clinics · ${kpi.month_label}`;
 }
 
 fetch('./data/kpis.json')
   .then(r => r.json())
   .then(data => {
     const arr = Array.isArray(data) ? data : [data];
-    arr.forEach(row => { kpiByPeriod[row.period] = row; });
+    arr.forEach(row => { kpiByMonth[row.month] = row; });
 
-    const sample = arr[0];
-    if (sample && sample.last_updated) {
-      const d = new Date(sample.last_updated);
+    // Populate dropdown with all available months (newest first)
+    const select = document.getElementById('month-select');
+    select.innerHTML = '';
+    arr.forEach(row => {
+      const opt = document.createElement('option');
+      opt.value = row.month;
+      opt.textContent = row.month_label;
+      select.appendChild(opt);
+    });
+
+    // Default to the most recent month
+    activeMonth = arr[0].month;
+    select.value = activeMonth;
+
+    // Update "last updated" in header
+    if (arr[0].last_updated) {
+      const d = new Date(arr[0].last_updated);
       const fmt = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      document.querySelector('.header-meta').innerHTML =
-        `Data updated <strong>${fmt}</strong>`;
+      document.querySelector('.header-meta').innerHTML = `Data updated <strong>${fmt}</strong>`;
     }
 
     renderKpis();
