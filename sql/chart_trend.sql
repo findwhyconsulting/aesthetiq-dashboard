@@ -1,8 +1,3 @@
--- Submissions Over Time — weekly bar chart
--- Output: one row per (month, week_label) with submission count
--- Grouped by the calendar month the week belongs to, then weekly within it.
--- Source: Consultations only.
-
 SELECT
   FORMAT_DATE('%Y-%m', DATE(createdAt))                                         AS month,
   FORMAT_DATE('%B %Y', DATE_TRUNC(DATE(createdAt), MONTH))                      AS month_label,

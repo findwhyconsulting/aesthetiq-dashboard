@@ -1,8 +1,3 @@
--- Top Area Combinations
--- Output: one row per (month, sorted_area_combo) with count and %
--- Only includes consultations with 2+ areas selected.
--- Source: Consultations only.
-
 WITH base AS (
   SELECT
     _id,
@@ -28,7 +23,6 @@ WITH base AS (
   WHERE isDeleted = FALSE
 ),
 
--- Build a sorted combo string per consultation (areas in alphabetical order)
 combos AS (
   SELECT
     _id,

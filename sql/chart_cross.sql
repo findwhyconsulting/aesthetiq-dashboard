@@ -1,8 +1,3 @@
--- Age Group × Area of Concern Cross Analysis heatmap
--- Output: one row per (month, age_range, area_name)
--- pct = % of submissions in that age group that tapped that area
--- Source: Consultations only.
-
 WITH base AS (
   SELECT
     _id,
@@ -33,7 +28,6 @@ areas_unpivoted AS (
   WHERE area IS NOT NULL AND area != ''
 ),
 
--- Denominator: total submissions per (month, age group)
 age_group_totals AS (
   SELECT
     FORMAT_DATE('%Y-%m', sub_date) AS month,

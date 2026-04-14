@@ -1,7 +1,3 @@
--- KPI metrics grouped by month.
--- Outputs one row per month: totals, rates, active clinics, most common protocol.
--- JOIN: Consultations → Packages (for most_common_protocol)
-
 WITH base AS (
   SELECT
     *,
@@ -21,16 +17,15 @@ WITH base AS (
   WHERE isDeleted = FALSE
 ),
 
--- Most common protocol per month (rank 1 = top)
 protocol_ranks AS (
   SELECT
-    FORMAT_DATE('%Y-%m', DATE(c.createdAt)) AS month,
+    FORMAT_DATE('%Y-%m', DATE(c.createdAt))                                     AS month,
     p.packageName,
-    COUNT(*)                                                            AS cnt,
+    COUNT(*)                                                                    AS cnt,
     ROW_NUMBER() OVER (
       PARTITION BY FORMAT_DATE('%Y-%m', DATE(c.createdAt))
       ORDER BY COUNT(*) DESC
-    )                                                                   AS rn
+    )                                                                           AS rn
   FROM `aesthetiq-490506.Prod_data.Consultations` c
   JOIN `aesthetiq-490506.Prod_data.Packages` p ON c.recommandation = p._id
   WHERE c.isDeleted = FALSE
