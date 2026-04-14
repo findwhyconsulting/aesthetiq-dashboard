@@ -30,19 +30,24 @@ monthly_stats AS (
   GROUP BY month, period_start, period_end
 ),
 
-protocol_ranks AS (
+protocol_counts AS (
   SELECT
-    FORMAT_DATE('%Y-%m', DATE(c.createdAt))                                        AS month,
+    FORMAT_DATE('%Y-%m', DATE(c.createdAt)) AS month,
     p.packageName,
-    COUNT(*)                                                                       AS cnt,
-    ROW_NUMBER() OVER (
-      PARTITION BY FORMAT_DATE('%Y-%m', DATE(c.createdAt))
-      ORDER BY COUNT(*) DESC
-    )                                                                              AS rn
+    COUNT(*)                                AS cnt
   FROM `aesthetiq-490506.Prod_data.Consultations` c
   JOIN `aesthetiq-490506.Prod_data.Packages` p ON c.recommandation = p._id
   WHERE c.isDeleted = FALSE
   GROUP BY month, p.packageName
+),
+
+protocol_ranks AS (
+  SELECT
+    month,
+    packageName,
+    cnt,
+    ROW_NUMBER() OVER (PARTITION BY month ORDER BY cnt DESC) AS rn
+  FROM protocol_counts
 ),
 
 top_protocols AS (
