@@ -21,45 +21,11 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: KPI metrics
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/platform_kpis.sql)" > data/kpis.json
+      - name: Install BigQuery Python client
+        run: pip install google-cloud-bigquery
 
-      - name: Areas of concern
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_areas.sql)" > data/chart_areas.json
-
-      - name: Top area combinations
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_combos.sql)" > data/chart_combos.json
-
-      - name: Protocol recommendations
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_protocols.sql)" > data/chart_protocols.json
-
-      - name: Age distribution
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_demographics.sql)" > data/chart_age.json
-
-      - name: Age x Area cross analysis
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_cross.sql)" > data/chart_cross.json
-
-      - name: Weekly submissions trend
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_trend.sql)" > data/chart_trend.json
-
-      - name: Clinic breakdown
-        run: |
-          bq query --use_legacy_sql=false --format=json --project_id=aesthetiq-490506 \
-            "$(cat sql/chart_clinics.sql)" > data/chart_clinics.json
+      - name: Run all queries and export JSON files
+        run: python scripts/run_queries.py
 
       - name: Commit and push updated data
         run: |
