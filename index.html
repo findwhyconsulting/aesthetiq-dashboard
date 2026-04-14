@@ -600,7 +600,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Most Common Protocol</div>
-      <div class="stat-value" style="color: var(--pink); font-size: 22px; letter-spacing: -0.5px; padding-top: 6px">Skin Quality</div>
+      <div class="stat-value" id="kpi-protocol" style="color: var(--pink); font-size: 22px; letter-spacing: -0.5px; padding-top: 6px">—</div>
       <div class="stat-delta neutral">platform-wide</div>
     </div>
   </div>
@@ -646,56 +646,8 @@
           </svg>
         </div>
 
-        <div class="face-legend">
-          <div style="font-size:11px; color: var(--text-dim); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px">Top Areas</div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#4a2a8a"></div>
-            <span class="face-legend-label">Forehead</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:78%"></div></div>
-            <span class="face-legend-pct">78%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#6040a8"></div>
-            <span class="face-legend-label">Cheeks</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:71%"></div></div>
-            <span class="face-legend-pct">71%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#7c5cbf"></div>
-            <span class="face-legend-label">Eye area</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:65%"></div></div>
-            <span class="face-legend-pct">65%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#9b7de0"></div>
-            <span class="face-legend-label">Lips</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:54%"></div></div>
-            <span class="face-legend-pct">54%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#baa4ec"></div>
-            <span class="face-legend-label">Jawline</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:41%"></div></div>
-            <span class="face-legend-pct">41%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#5559aa"></div>
-            <span class="face-legend-label">Skin / texture</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:38%"></div></div>
-            <span class="face-legend-pct">38%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#3d3d6e"></div>
-            <span class="face-legend-label">Chin</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:22%"></div></div>
-            <span class="face-legend-pct">22%</span>
-          </div>
-          <div class="face-legend-item">
-            <div class="face-legend-dot" style="background:#2d2d50"></div>
-            <span class="face-legend-label">Neck</span>
-            <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:17%"></div></div>
-            <span class="face-legend-pct">17%</span>
-          </div>
+        <div class="face-legend" id="face-legend">
+          <div style="color:var(--text-dim);font-size:13px">Loading…</div>
         </div>
       </div>
     </div>
@@ -703,57 +655,8 @@
     <div class="card">
       <div class="card-title">Top Area Combinations</div>
       <div class="card-desc">Most common multi-area selections</div>
-      <div class="combo-list">
-        <div class="combo-item">
-          <div class="combo-rank">1</div>
-          <div class="combo-chips">
-            <span class="chip">Forehead</span><span class="chip">Eye area</span>
-          </div>
-          <div>
-            <div class="combo-count">52</div>
-            <div class="combo-pct">21%</div>
-          </div>
-        </div>
-        <div class="combo-item">
-          <div class="combo-rank">2</div>
-          <div class="combo-chips">
-            <span class="chip">Cheeks</span><span class="chip">Lips</span>
-          </div>
-          <div>
-            <div class="combo-count">41</div>
-            <div class="combo-pct">17%</div>
-          </div>
-        </div>
-        <div class="combo-item">
-          <div class="combo-rank">3</div>
-          <div class="combo-chips">
-            <span class="chip">Forehead</span><span class="chip">Cheeks</span><span class="chip">Eye area</span>
-          </div>
-          <div>
-            <div class="combo-count">38</div>
-            <div class="combo-pct">15%</div>
-          </div>
-        </div>
-        <div class="combo-item">
-          <div class="combo-rank">4</div>
-          <div class="combo-chips">
-            <span class="chip">Skin / texture</span><span class="chip">Cheeks</span>
-          </div>
-          <div>
-            <div class="combo-count">29</div>
-            <div class="combo-pct">12%</div>
-          </div>
-        </div>
-        <div class="combo-item">
-          <div class="combo-rank">5</div>
-          <div class="combo-chips">
-            <span class="chip">Jawline</span><span class="chip">Chin</span><span class="chip">Cheeks</span>
-          </div>
-          <div>
-            <div class="combo-count">21</div>
-            <div class="combo-pct">8%</div>
-          </div>
-        </div>
+      <div class="combo-list" id="combo-list">
+        <div style="color:var(--text-dim);font-size:13px;padding:12px 0">Loading…</div>
       </div>
     </div>
 
@@ -777,35 +680,8 @@
         <div class="chart-wrap" style="height:200px">
           <canvas id="protocolDonut"></canvas>
         </div>
-        <div class="protocol-list">
-          <div class="protocol-item">
-            <div class="protocol-header">
-              <span class="protocol-name">Skin Quality</span>
-              <span class="protocol-stats">109 &nbsp;<span style="color:var(--text-dim)">44%</span></span>
-            </div>
-            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:44%; background: linear-gradient(90deg, #e060a0, #f07ab0)"></div></div>
-          </div>
-          <div class="protocol-item">
-            <div class="protocol-header">
-              <span class="protocol-name">Wrinkle Relaxing</span>
-              <span class="protocol-stats">72 &nbsp;<span style="color:var(--text-dim)">29%</span></span>
-            </div>
-            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:29%; background: linear-gradient(90deg, #7c5cbf, #9b7de0)"></div></div>
-          </div>
-          <div class="protocol-item">
-            <div class="protocol-header">
-              <span class="protocol-name">Volumisation</span>
-              <span class="protocol-stats">41 &nbsp;<span style="color:var(--text-dim)">17%</span></span>
-            </div>
-            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:17%; background: linear-gradient(90deg, #38c9b0, #60dfcc)"></div></div>
-          </div>
-          <div class="protocol-item">
-            <div class="protocol-header">
-              <span class="protocol-name">Facial Contouring</span>
-              <span class="protocol-stats">25 &nbsp;<span style="color:var(--text-dim)">10%</span></span>
-            </div>
-            <div class="protocol-bar-bg"><div class="protocol-bar" style="width:10%; background: linear-gradient(90deg, #f5a623, #f7be63)"></div></div>
-          </div>
+        <div class="protocol-list" id="protocol-list">
+          <div style="color:var(--text-dim);font-size:13px">Loading…</div>
         </div>
       </div>
     </div>
@@ -820,28 +696,7 @@
     <div class="card">
       <div class="card-title">Age Distribution</div>
       <div class="card-desc">All submissions · estimated from intake responses</div>
-      <div class="age-band-grid">
-        <div class="age-band">
-          <div class="age-band-range">Under 25</div>
-          <div class="age-band-pct" style="color:var(--text-dim)">6%</div>
-        </div>
-        <div class="age-band">
-          <div class="age-band-range">25 – 34</div>
-          <div class="age-band-pct" style="color:#9b7de0">22%</div>
-        </div>
-        <div class="age-band" style="border-color: var(--purple); background: var(--purple-glow);">
-          <div class="age-band-range" style="color:var(--purple-light)">35 – 44</div>
-          <div class="age-band-pct" style="color:var(--purple-light)">41%</div>
-        </div>
-        <div class="age-band">
-          <div class="age-band-range">45 – 54</div>
-          <div class="age-band-pct" style="color:#9b7de0">24%</div>
-        </div>
-        <div class="age-band">
-          <div class="age-band-range">55+</div>
-          <div class="age-band-pct" style="color:var(--text-dim)">7%</div>
-        </div>
-      </div>
+      <div class="age-band-grid" id="age-band-grid"></div>
       <div class="chart-wrap short">
         <canvas id="ageChart"></canvas>
       </div>
@@ -863,17 +718,7 @@
   <div class="card" style="margin-bottom:16px">
     <div class="card-title">Age Group × Area of Concern</div>
     <div class="card-desc">% within each age group who tapped that area — darker = higher prevalence</div>
-    <div style="margin-top: 16px;">
-      <div class="heatmap-grid">
-        <div class="hm-header"></div>
-        <div class="hm-header">25–34</div>
-        <div class="hm-header">35–44</div>
-        <div class="hm-header">45–54</div>
-        <div class="hm-header">55+</div>
-        <div class="hm-header">Under 25</div>
-      </div>
-      <div id="heatmapGrid"></div>
-    </div>
+    <div id="heatmap-container" style="margin-top: 16px;"></div>
   </div>
 
   <!-- CLINIC PERFORMANCE TABLE -->
@@ -886,89 +731,14 @@
       <thead>
         <tr>
           <th>Clinic</th>
-          <th>Location</th>
           <th>Submissions</th>
-          <th>Top area</th>
-          <th>Top protocol</th>
-          <th>Avg age</th>
-          <th>4wk trend</th>
+          <th>Top Area</th>
+          <th>Top Protocol</th>
+          <th>Avg Age</th>
           <th>Status</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td><span class="clinic-dot" style="background:#7c5cbf"></span>Canvas Cosmetic</td>
-          <td style="color:var(--text-muted)">Perth, WA</td>
-          <td><strong>112</strong></td>
-          <td>Forehead</td>
-          <td>Wrinkle Relaxing</td>
-          <td>38</td>
-          <td>
-            <div class="sparkbar">
-              <div class="sparkbar-col" style="height:40%"></div>
-              <div class="sparkbar-col" style="height:55%"></div>
-              <div class="sparkbar-col" style="height:60%"></div>
-              <div class="sparkbar-col" style="height:70%"></div>
-              <div class="sparkbar-col peak" style="height:100%"></div>
-            </div>
-          </td>
-          <td><span class="badge badge-teal">Live</span></td>
-        </tr>
-        <tr>
-          <td><span class="clinic-dot" style="background:#38c9b0"></span>Clarity Skin Clinic</td>
-          <td style="color:var(--text-muted)">Melbourne, VIC</td>
-          <td><strong>74</strong></td>
-          <td>Skin / texture</td>
-          <td>Skin Quality</td>
-          <td>42</td>
-          <td>
-            <div class="sparkbar">
-              <div class="sparkbar-col" style="height:50%"></div>
-              <div class="sparkbar-col" style="height:60%"></div>
-              <div class="sparkbar-col" style="height:55%"></div>
-              <div class="sparkbar-col peak" style="height:80%"></div>
-              <div class="sparkbar-col" style="height:70%"></div>
-            </div>
-          </td>
-          <td><span class="badge badge-teal">Live</span></td>
-        </tr>
-        <tr>
-          <td><span class="clinic-dot" style="background:#e060a0"></span>The Aesthete</td>
-          <td style="color:var(--text-muted)">Sydney, NSW</td>
-          <td><strong>43</strong></td>
-          <td>Cheeks</td>
-          <td>Volumisation</td>
-          <td>36</td>
-          <td>
-            <div class="sparkbar">
-              <div class="sparkbar-col" style="height:80%"></div>
-              <div class="sparkbar-col" style="height:60%"></div>
-              <div class="sparkbar-col" style="height:50%"></div>
-              <div class="sparkbar-col" style="height:55%"></div>
-              <div class="sparkbar-col peak" style="height:65%"></div>
-            </div>
-          </td>
-          <td><span class="badge badge-teal">Live</span></td>
-        </tr>
-        <tr>
-          <td><span class="clinic-dot" style="background:#f5a623"></span>Glow Medi Clinic</td>
-          <td style="color:var(--text-muted)">Brisbane, QLD</td>
-          <td><strong>18</strong></td>
-          <td>Jawline</td>
-          <td>Facial Contouring</td>
-          <td>33</td>
-          <td>
-            <div class="sparkbar">
-              <div class="sparkbar-col" style="height:30%"></div>
-              <div class="sparkbar-col" style="height:35%"></div>
-              <div class="sparkbar-col peak" style="height:60%"></div>
-              <div class="sparkbar-col" style="height:50%"></div>
-              <div class="sparkbar-col" style="height:55%"></div>
-            </div>
-          </td>
-          <td><span class="badge badge-amber">New</span></td>
-        </tr>
-      </tbody>
+      <tbody id="clinic-table-body"></tbody>
     </table>
   </div>
 
@@ -1020,7 +790,316 @@
 </div>
 
 <script>
-// ── DATA ─────────────────────────────────────────────────────────────────────
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const protocolColors = ['#e060a0','#7c5cbf','#38c9b0','#f5a623','#9b7de0','#60dfcc'];
+const clinicColors   = ['#7c5cbf','#38c9b0','#e060a0','#f5a623','#9b7de0','#ff8c69'];
+const ageOrder       = ['18-25','26-35','36-45','46-59','60+'];
+const ageRangeMap    = {'18-25':'Under 25','26-35':'25–34','36-45':'35–44','46-59':'45–54','60+':'55+'};
+
+// ── GLOBAL STATE ─────────────────────────────────────────────────────────────
+const D = { kpis:{}, areas:{}, combos:{}, protocols:{}, age:{}, cross:{}, trend:{}, clinics:{} };
+let activeMonth = '';
+const charts = { submissions: null, donut: null, age: null };
+
+// ── HEATMAP COLOR ─────────────────────────────────────────────────────────────
+function heatColor(v) {
+  if (v >= 80) return '#baa4ec';
+  if (v >= 60) return '#7c5cbf';
+  if (v >= 40) return '#4a2a8a';
+  if (v >= 20) return '#2d1f5e';
+  return '#1a1a2e';
+}
+
+// ── MONTH FILTER ─────────────────────────────────────────────────────────────
+function setMonth(month) {
+  activeMonth = month;
+  renderAll();
+}
+
+function renderAll() {
+  renderKpis();
+  renderTrend();
+  renderProtocols();
+  renderAreas();
+  renderCombos();
+  renderAge();
+  renderHeatmap();
+  renderClinicsTable();
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────────────────
+function renderKpis() {
+  const kpi = D.kpis[activeMonth];
+  if (!kpi) {
+    ['kpi-total','kpi-completion','kpi-avg-areas','kpi-clinics','kpi-protocol'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+    });
+    document.getElementById('kpi-total-delta').textContent = 'no data for this month';
+    document.getElementById('master-subtitle').textContent = 'All clinics · no submissions';
+    return;
+  }
+  document.getElementById('kpi-total').textContent      = kpi.total_submissions;
+  document.getElementById('kpi-completion').textContent = kpi.completion_rate + '%';
+  document.getElementById('kpi-avg-areas').textContent  = kpi.avg_areas_per_consultation;
+  document.getElementById('kpi-clinics').textContent    = kpi.active_clinics;
+  document.getElementById('kpi-protocol').textContent   = kpi.most_common_protocol || '—';
+  document.getElementById('kpi-total-delta').textContent = 'across all clinics';
+  document.getElementById('master-subtitle').textContent = `All clinics · ${kpi.month_label}`;
+}
+
+// ── SUBMISSIONS TREND ────────────────────────────────────────────────────────
+function renderTrend() {
+  const rows   = D.trend[activeMonth] || [];
+  const labels = rows.map(r => r.week_label);
+  const data   = rows.map(r => Number(r.submissions));
+  if (charts.submissions) {
+    charts.submissions.data.labels = labels;
+    charts.submissions.data.datasets[0].data = data;
+    charts.submissions.update();
+  } else {
+    charts.submissions = new Chart(document.getElementById('submissionsChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ label:'Submissions', data, backgroundColor:'rgba(124,92,191,0.6)', borderColor:'#9b7de0', borderWidth:1, borderRadius:4 }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ font:{ size:11 } } },
+          y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ font:{ size:11 } } }
+        }
+      }
+    });
+  }
+}
+
+// ── PROTOCOLS ────────────────────────────────────────────────────────────────
+function renderProtocols() {
+  const rows = (D.protocols[activeMonth] || []).slice(0, 6);
+  if (charts.donut) {
+    charts.donut.data.labels = rows.map(r => r.protocol);
+    charts.donut.data.datasets[0].data = rows.map(r => Number(r.pct));
+    charts.donut.data.datasets[0].backgroundColor = rows.map((_, i) => protocolColors[i % protocolColors.length]);
+    charts.donut.update();
+  } else {
+    charts.donut = new Chart(document.getElementById('protocolDonut'), {
+      type: 'doughnut',
+      data: {
+        labels: rows.map(r => r.protocol),
+        datasets: [{ data: rows.map(r => Number(r.pct)), backgroundColor: rows.map((_, i) => protocolColors[i % protocolColors.length]), borderWidth:0, spacing:3 }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ display:false } } }
+    });
+  }
+  const list = document.getElementById('protocol-list');
+  if (!rows.length) { list.innerHTML = '<div style="color:var(--text-dim);font-size:13px;padding:12px 0">No data for this month</div>'; return; }
+  list.innerHTML = rows.map((r, i) => `
+    <div class="protocol-item">
+      <div class="protocol-header">
+        <span class="protocol-name">${r.protocol}</span>
+        <span class="protocol-stats">${r.count} &nbsp;<span style="color:var(--text-dim)">${r.pct}%</span></span>
+      </div>
+      <div class="protocol-bar-bg"><div class="protocol-bar" style="width:${r.pct}%;background:linear-gradient(90deg,${protocolColors[i%protocolColors.length]},${protocolColors[i%protocolColors.length]}cc)"></div></div>
+    </div>`).join('');
+}
+
+// ── FACE MAP ─────────────────────────────────────────────────────────────────
+const faceZoneKeywords = {
+  'Forehead': ['forehead','frown','glabella','brow'],
+  'Eyes':     ['eye','periorbital','under-eye','crow','dark circle'],
+  'Cheeks':   ['cheek','midface','nasolabial','malar'],
+  'Lips':     ['lip','mouth','perioral'],
+  'Jawline':  ['jaw','jowl'],
+  'Chin':     ['chin'],
+  'Neck':     ['neck','decollet']
+};
+
+function updateFaceZones(rows) {
+  const rankMap = {};
+  rows.forEach((r, i) => { rankMap[r.area_name.toLowerCase()] = i; });
+  document.querySelectorAll('.face-zone').forEach(el => {
+    const title = el.getAttribute('title');
+    if (!title) return;
+    const keywords = faceZoneKeywords[title] || [title.toLowerCase()];
+    let best = null;
+    for (const [name, rank] of Object.entries(rankMap)) {
+      if (keywords.some(kw => name.includes(kw) || kw.includes(name.split(' ')[0]))) {
+        if (best === null || rank < best) best = rank;
+      }
+    }
+    el.classList.remove('hot1','hot2','hot3','hot4','hot5');
+    if (best !== null) {
+      el.classList.add(best === 0 ? 'hot1' : best === 1 ? 'hot2' : best <= 2 ? 'hot3' : best <= 4 ? 'hot4' : 'hot5');
+    }
+  });
+}
+
+function renderAreas() {
+  const rows   = (D.areas[activeMonth] || []).slice(0, 8);
+  const colors = ['#4a2a8a','#6040a8','#7c5cbf','#9b7de0','#baa4ec','#5559aa','#3d3d6e','#2d2d50'];
+  const legend = document.getElementById('face-legend');
+  if (!rows.length) { legend.innerHTML = '<div style="color:var(--text-dim);font-size:13px">No data for this month</div>'; return; }
+  legend.innerHTML =
+    '<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Top Areas</div>' +
+    rows.map((r, i) => `
+      <div class="face-legend-item">
+        <div class="face-legend-dot" style="background:${colors[i]}"></div>
+        <span class="face-legend-label">${r.area_name}</span>
+        <div class="face-legend-bar-wrap"><div class="face-legend-bar" style="width:${Math.min(r.pct, 100)}%"></div></div>
+        <span class="face-legend-pct">${r.pct}%</span>
+      </div>`).join('');
+  updateFaceZones(rows);
+}
+
+// ── COMBOS ───────────────────────────────────────────────────────────────────
+function renderCombos() {
+  const rows = (D.combos[activeMonth] || []).slice(0, 5);
+  const list = document.getElementById('combo-list');
+  if (!rows.length) { list.innerHTML = '<div style="color:var(--text-dim);font-size:13px;padding:12px 0">No data for this month</div>'; return; }
+  list.innerHTML = rows.map((r, i) => `
+    <div class="combo-item">
+      <div class="combo-rank">${i + 1}</div>
+      <div class="combo-chips">
+        ${r.area_combo.split(' + ').map(a => `<span class="chip">${a}</span>`).join('')}
+      </div>
+      <div>
+        <div class="combo-count">${r.count}</div>
+        <div class="combo-pct">${r.pct}%</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── AGE DISTRIBUTION ─────────────────────────────────────────────────────────
+function renderAge() {
+  const rows   = (D.age[activeMonth] || []).sort((a, b) => ageOrder.indexOf(a.ageRange) - ageOrder.indexOf(b.ageRange));
+  const values = rows.map(r => Number(r.pct));
+  const labels = rows.map(r => ageRangeMap[r.ageRange] || r.ageRange);
+  const maxPct = Math.max(...values, 0.1);
+  const bgColors = values.map(v => v === maxPct ? 'rgba(124,92,191,0.9)' : v > maxPct * 0.65 ? 'rgba(124,92,191,0.5)' : 'rgba(124,92,191,0.3)');
+
+  document.getElementById('age-band-grid').innerHTML = rows.map((r, i) => {
+    const isMax = values[i] === maxPct;
+    return `<div class="age-band" ${isMax ? 'style="border-color:var(--purple);background:var(--purple-glow);"' : ''}>
+      <div class="age-band-range" ${isMax ? 'style="color:var(--purple-light)"' : ''}>${labels[i]}</div>
+      <div class="age-band-pct" style="color:${isMax ? 'var(--purple-light)' : values[i] > maxPct * 0.65 ? '#9b7de0' : 'var(--text-dim)'}">${values[i]}%</div>
+    </div>`;
+  }).join('');
+
+  if (charts.age) {
+    charts.age.data.labels = labels;
+    charts.age.data.datasets[0].data = values;
+    charts.age.data.datasets[0].backgroundColor = bgColors;
+    charts.age.update();
+  } else {
+    charts.age = new Chart(document.getElementById('ageChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ data: values, backgroundColor: bgColors, borderColor:'#7c5cbf', borderWidth:1, borderRadius:4 }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ font:{ size:10 } } },
+          y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ font:{ size:10 }, callback: v => v+'%' } }
+        }
+      }
+    });
+  }
+}
+
+// ── HEATMAP ──────────────────────────────────────────────────────────────────
+function renderHeatmap() {
+  const rows      = D.cross[activeMonth] || [];
+  const container = document.getElementById('heatmap-container');
+  if (!rows.length) { container.innerHTML = '<div style="color:var(--text-dim);padding:20px;font-size:13px">No heatmap data for this month</div>'; return; }
+
+  const ageGroups = [...new Set(rows.map(r => r.ageRange))].sort((a, b) => ageOrder.indexOf(a) - ageOrder.indexOf(b));
+  const areas     = [...new Set(rows.map(r => r.area_name))];
+  const lookup    = {};
+  rows.forEach(r => { lookup[`${r.ageRange}|${r.area_name}`] = Number(r.pct); });
+
+  const cols = `grid-template-columns: 120px repeat(${ageGroups.length}, 1fr)`;
+  let html = `<div class="heatmap-grid" style="${cols}"><div class="hm-header"></div>`;
+  ageGroups.forEach(ag => { html += `<div class="hm-header">${ageRangeMap[ag] || ag}</div>`; });
+  html += '</div>';
+  areas.forEach(area => {
+    html += `<div class="heatmap-grid" style="${cols};margin-bottom:3px"><div class="hm-row-label">${area}</div>`;
+    ageGroups.forEach(ag => {
+      const v = lookup[`${ag}|${area}`] || 0;
+      html += `<div class="hm-cell" style="background:${heatColor(v)};color:${v>50?'#e8e8f0':'#8888aa'}" title="${area} · ${ageRangeMap[ag]||ag}: ${v}%">${v}%</div>`;
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ── CLINICS TABLE ─────────────────────────────────────────────────────────────
+function renderClinicsTable() {
+  const rows  = D.clinics[activeMonth] || [];
+  const tbody = document.getElementById('clinic-table-body');
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim);text-align:center;padding:20px">No clinic data for this month</td></tr>'; return; }
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td><span class="clinic-dot" style="background:${clinicColors[i%clinicColors.length]}"></span>${r.clinic_name}</td>
+      <td><strong>${r.total_submissions}</strong></td>
+      <td>${r.top_area || '—'}</td>
+      <td>${r.top_protocol || '—'}</td>
+      <td>${r.avg_age ? Math.round(Number(r.avg_age)) : '—'}</td>
+      <td><span class="badge badge-teal">Live</span></td>
+    </tr>`).join('');
+}
+
+// ── DATA LOADING ─────────────────────────────────────────────────────────────
+Chart.defaults.color = '#8888aa';
+Chart.defaults.font.family = 'DM Sans';
+
+Promise.all([
+  fetch('./data/kpis.json').then(r => r.json()),
+  fetch('./data/chart_areas.json').then(r => r.json()),
+  fetch('./data/chart_combos.json').then(r => r.json()),
+  fetch('./data/chart_protocols.json').then(r => r.json()),
+  fetch('./data/chart_age.json').then(r => r.json()),
+  fetch('./data/chart_cross.json').then(r => r.json()),
+  fetch('./data/chart_trend.json').then(r => r.json()),
+  fetch('./data/chart_clinics.json').then(r => r.json()),
+]).then(([kpis, areas, combos, protocols, age, cross, trend, clinics_data]) => {
+  kpis.forEach(r         => { D.kpis[r.month] = r; });
+  areas.forEach(r        => { (D.areas[r.month]     = D.areas[r.month]     || []).push(r); });
+  combos.forEach(r       => { (D.combos[r.month]    = D.combos[r.month]    || []).push(r); });
+  protocols.forEach(r    => { (D.protocols[r.month] = D.protocols[r.month] || []).push(r); });
+  age.forEach(r          => { (D.age[r.month]       = D.age[r.month]       || []).push(r); });
+  cross.forEach(r        => { (D.cross[r.month]     = D.cross[r.month]     || []).push(r); });
+  trend.forEach(r        => { (D.trend[r.month]     = D.trend[r.month]     || []).push(r); });
+  clinics_data.forEach(r => { (D.clinics[r.month]   = D.clinics[r.month]   || []).push(r); });
+
+  const select = document.getElementById('month-select');
+  select.innerHTML = '';
+  kpis.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.month;
+    opt.textContent = r.month_label;
+    select.appendChild(opt);
+  });
+  activeMonth = kpis[0].month;
+  select.value = activeMonth;
+
+  if (kpis[0] && kpis[0].last_updated) {
+    const d   = new Date(kpis[0].last_updated);
+    const fmt = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    document.querySelector('.header-meta').innerHTML = `Data updated <strong>${fmt}</strong>`;
+  }
+
+  renderAll();
+}).catch(err => {
+  console.error('Data load error:', err);
+  document.getElementById('kpi-total-delta').textContent = 'data unavailable';
+});
+
+// ── PER-CLINIC HARDCODED DATA ─────────────────────────────────────────────────
 const clinics = {
   canvas: {
     name: "Canvas Cosmetic Clinic",
@@ -1080,157 +1159,21 @@ const clinics = {
   }
 };
 
-const areaNames = ["Forehead", "Cheeks", "Eye area", "Lips", "Jawline", "Skin/texture", "Chin", "Neck"];
+const areaNames    = ["Forehead", "Cheeks", "Eye area", "Lips", "Jawline", "Skin/texture", "Chin", "Neck"];
 const protocolNames = ["Wrinkle Relaxing", "Volumisation", "Skin Quality", "Facial Contouring"];
-const protocolColors = ["#7c5cbf", "#38c9b0", "#e060a0", "#f5a623"];
-const ageLabels = ["Under 25", "25–34", "35–44", "45–54", "55+"];
+const ageLabels     = ["Under 25", "25–34", "35–44", "45–54", "55+"];
 
-// ── HEATMAP DATA ─────────────────────────────────────────────────────────────
-const heatData = {
-  areas: ["Forehead", "Cheeks", "Eye area", "Lips", "Jawline", "Skin/texture", "Chin", "Neck"],
-  ageGroups: ["25–34", "35–44", "45–54", "55+", "Under 25"],
-  values: [
-    [65, 82, 85, 70, 40],  // Forehead
-    [60, 72, 75, 68, 50],  // Cheeks
-    [55, 68, 80, 75, 30],  // Eye area
-    [70, 52, 42, 35, 60],  // Lips
-    [35, 42, 44, 40, 28],  // Jawline
-    [42, 40, 36, 30, 35],  // Skin/texture
-    [28, 22, 20, 18, 24],  // Chin
-    [12, 16, 25, 28, 8],   // Neck
-  ]
-};
-
-function heatColor(v) {
-  const stops = [
-    [0, "#1a1a2e"],
-    [30, "#2d1f5e"],
-    [50, "#4a2a8a"],
-    [70, "#7c5cbf"],
-    [90, "#baa4ec"]
-  ];
-  for (let i = 1; i < stops.length; i++) {
-    if (v <= stops[i][0]) {
-      return stops[i][1];
-    }
-  }
-  return stops[stops.length-1][1];
-}
-
-function buildHeatmap() {
-  const container = document.getElementById('heatmapGrid');
-  heatData.areas.forEach(area => {
-    const row = document.createElement('div');
-    row.className = 'heatmap-grid';
-    row.style.marginBottom = '3px';
-    const label = document.createElement('div');
-    label.className = 'hm-row-label';
-    label.textContent = area;
-    row.appendChild(label);
-    const areaIdx = heatData.areas.indexOf(area);
-    heatData.ageGroups.forEach((ag, agIdx) => {
-      const v = heatData.values[areaIdx][agIdx];
-      const cell = document.createElement('div');
-      cell.className = 'hm-cell';
-      cell.style.background = heatColor(v);
-      cell.style.color = v > 50 ? '#e8e8f0' : '#8888aa';
-      cell.textContent = v + '%';
-      cell.title = `${area} · ${ag}: ${v}%`;
-      row.appendChild(cell);
-    });
-    container.appendChild(row);
+// ── PAGE SWITCHING ────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && id === 'master') || (i === 1 && id === 'clinic'));
   });
+  if (id === 'clinic') renderClinic('canvas');
 }
-buildHeatmap();
 
-// ── CHART DEFAULTS ───────────────────────────────────────────────────────────
-Chart.defaults.color = '#8888aa';
-Chart.defaults.font.family = 'DM Sans';
-
-// ── SUBMISSIONS CHART ────────────────────────────────────────────────────────
-new Chart(document.getElementById('submissionsChart'), {
-  type: 'bar',
-  data: {
-    labels: ['Feb W1','Feb W2','Feb W3','Feb W4','Mar W1','Mar W2','Mar W3','Mar W4','Apr W1','Apr W2'],
-    datasets: [{
-      label: 'Submissions',
-      data: [12, 18, 14, 22, 24, 28, 32, 38, 41, 18],
-      backgroundColor: 'rgba(124, 92, 191, 0.6)',
-      borderColor: '#9b7de0',
-      borderWidth: 1,
-      borderRadius: 4,
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 11 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 11 } } }
-    }
-  }
-});
-
-// ── PROTOCOL DONUT ───────────────────────────────────────────────────────────
-new Chart(document.getElementById('protocolDonut'), {
-  type: 'doughnut',
-  data: {
-    labels: protocolNames,
-    datasets: [{ data: [29, 17, 44, 10], backgroundColor: protocolColors, borderWidth: 0, spacing: 3 }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false, cutout: '68%',
-    plugins: { legend: { display: false } }
-  }
-});
-
-// ── AGE CHART ────────────────────────────────────────────────────────────────
-new Chart(document.getElementById('ageChart'), {
-  type: 'bar',
-  data: {
-    labels: ageLabels,
-    datasets: [{
-      data: [6, 22, 41, 24, 7],
-      backgroundColor: ['rgba(124,92,191,0.3)','rgba(124,92,191,0.5)','rgba(124,92,191,0.9)','rgba(124,92,191,0.5)','rgba(124,92,191,0.3)'],
-      borderColor: ['#7c5cbf','#7c5cbf','#baa4ec','#7c5cbf','#7c5cbf'],
-      borderWidth: 1, borderRadius: 4
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { font: { size: 10 }, callback: v => v+'%' } }
-    }
-  }
-});
-
-// ── LOCATION CHART ───────────────────────────────────────────────────────────
-new Chart(document.getElementById('locationChart'), {
-  type: 'bar',
-  data: {
-    labels: ['Perth, WA','Melbourne, VIC','Sydney, NSW','Brisbane, QLD'],
-    datasets: [{
-      label: 'Submissions',
-      data: [112, 74, 43, 18],
-      backgroundColor: ['rgba(124,92,191,0.7)','rgba(56,201,176,0.7)','rgba(224,96,160,0.7)','rgba(245,166,35,0.7)'],
-      borderColor: ['#9b7de0','#38c9b0','#e060a0','#f5a623'],
-      borderWidth: 1, borderRadius: 4
-    }]
-  },
-  options: {
-    indexAxis: 'y',
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' } },
-      y: { grid: { display: false }, ticks: { font: { size: 12 } } }
-    }
-  }
-});
-
-// ── PER CLINIC VIEW ───────────────────────────────────────────────────────────
+// ── PER CLINIC VIEW ────────────────────────────────────────────────────────────
 let clinicCharts = [];
 
 function selectClinic(btn, id) {
@@ -1332,78 +1275,6 @@ function renderClinic(id) {
   }));
 }
 
-// ── PAGE SWITCHING ────────────────────────────────────────────────────────────
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach((t, i) => {
-    t.classList.toggle('active', (i === 0 && id === 'master') || (i === 1 && id === 'clinic'));
-  });
-  if (id === 'clinic') renderClinic('canvas');
-}
-
-// ── LIVE KPI DATA ─────────────────────────────────────────────────────────────
-const kpiByMonth = {};
-let activeMonth = '';
-
-function setMonth(month) {
-  activeMonth = month;
-  renderKpis();
-}
-
-function renderKpis() {
-  const kpi = kpiByMonth[activeMonth];
-
-  if (!kpi) {
-    document.getElementById('kpi-total').textContent       = '—';
-    document.getElementById('kpi-completion').textContent  = '—';
-    document.getElementById('kpi-avg-areas').textContent   = '—';
-    document.getElementById('kpi-clinics').textContent     = '—';
-    document.getElementById('kpi-total-delta').textContent = 'no data for this month';
-    document.getElementById('master-subtitle').textContent = 'All clinics · no submissions';
-    return;
-  }
-
-  document.getElementById('kpi-total').textContent       = kpi.total_submissions;
-  document.getElementById('kpi-completion').textContent  = kpi.completion_rate + '%';
-  document.getElementById('kpi-avg-areas').textContent   = kpi.avg_areas_per_consultation;
-  document.getElementById('kpi-clinics').textContent     = kpi.active_clinics;
-  document.getElementById('kpi-total-delta').textContent = 'across all clinics';
-  document.getElementById('master-subtitle').textContent = `All clinics · ${kpi.month_label}`;
-}
-
-fetch('./data/kpis.json')
-  .then(r => r.json())
-  .then(data => {
-    const arr = Array.isArray(data) ? data : [data];
-    arr.forEach(row => { kpiByMonth[row.month] = row; });
-
-    // Populate dropdown with all available months (newest first)
-    const select = document.getElementById('month-select');
-    select.innerHTML = '';
-    arr.forEach(row => {
-      const opt = document.createElement('option');
-      opt.value = row.month;
-      opt.textContent = row.month_label;
-      select.appendChild(opt);
-    });
-
-    // Default to the most recent month
-    activeMonth = arr[0].month;
-    select.value = activeMonth;
-
-    // Update "last updated" in header
-    if (arr[0].last_updated) {
-      const d = new Date(arr[0].last_updated);
-      const fmt = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      document.querySelector('.header-meta').innerHTML = `Data updated <strong>${fmt}</strong>`;
-    }
-
-    renderKpis();
-  })
-  .catch(() => {
-    document.getElementById('kpi-total-delta').textContent = 'data unavailable';
-  });
 </script>
 </body>
 </html>
