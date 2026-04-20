@@ -9,14 +9,18 @@ from google.cloud import bigquery
 PROJECT_ID = "aesthetiq-490506"
 
 QUERIES = [
-    ("sql/platform_kpis.sql",      "data/kpis.json"),
-    ("sql/chart_areas.sql",        "data/chart_areas.json"),
-    ("sql/chart_combos.sql",       "data/chart_combos.json"),
-    ("sql/chart_protocols.sql",    "data/chart_protocols.json"),
-    ("sql/chart_demographics.sql", "data/chart_age.json"),
-    ("sql/chart_cross.sql",        "data/chart_cross.json"),
-    ("sql/chart_trend.sql",        "data/chart_trend.json"),
-    ("sql/chart_clinics.sql",      "data/chart_clinics.json"),
+    ("sql/platform_kpis.sql",         "data/kpis.json"),
+    ("sql/chart_areas.sql",           "data/chart_areas.json"),
+    ("sql/chart_combos.sql",          "data/chart_combos.json"),
+    ("sql/chart_protocols.sql",       "data/chart_protocols.json"),
+    ("sql/chart_demographics.sql",    "data/chart_age.json"),
+    ("sql/chart_cross.sql",           "data/chart_cross.json"),
+    ("sql/chart_trend.sql",           "data/chart_trend.json"),
+    ("sql/chart_clinics.sql",         "data/chart_clinics.json"),
+    ("sql/chart_clinic_trend.sql",    "data/chart_clinic_trend.json"),
+    ("sql/chart_clinic_protocols.sql","data/chart_clinic_protocols.json"),
+    ("sql/chart_clinic_age.sql",      "data/chart_clinic_age.json"),
+    ("sql/chart_clinic_areas.sql",    "data/chart_clinic_areas.json"),
 ]
 
 

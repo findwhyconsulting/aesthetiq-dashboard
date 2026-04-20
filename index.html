@@ -768,21 +768,18 @@
 <div class="page" id="page-clinic">
 
   <div class="page-title">Clinic Dashboard</div>
-  <div class="page-subtitle">Individual clinic view — shareable with each clinic partner</div>
+  <div class="page-subtitle" id="clinic-subtitle">Individual clinic view — shareable with each clinic partner</div>
 
-  <div class="clinic-selector">
-    <button class="clinic-btn active" onclick="selectClinic(this, 'canvas')">
-      <span class="dot" style="background:#7c5cbf"></span>Canvas Cosmetic
-    </button>
-    <button class="clinic-btn" onclick="selectClinic(this, 'clarity')">
-      <span class="dot" style="background:#38c9b0"></span>Clarity Skin Clinic
-    </button>
-    <button class="clinic-btn" onclick="selectClinic(this, 'aesthete')">
-      <span class="dot" style="background:#e060a0"></span>The Aesthete
-    </button>
-    <button class="clinic-btn" onclick="selectClinic(this, 'glow')">
-      <span class="dot" style="background:#f5a623"></span>Glow Medi Clinic
-    </button>
+  <!-- MONTH + CLINIC FILTERS -->
+  <div class="month-filter">
+    <span class="month-filter-label">Month</span>
+    <select class="month-select" id="clinic-month-select" onchange="setClinicMonth(this.value)">
+      <option value="">Loading…</option>
+    </select>
+    <span class="month-filter-label" style="margin-left:18px">Clinic</span>
+    <select class="month-select" id="clinic-select" onchange="setClinic(this.value)">
+      <option value="">Loading…</option>
+    </select>
   </div>
 
   <div id="clinicContent"></div>
@@ -1057,16 +1054,22 @@ function renderClinicsTable() {
 Chart.defaults.color = '#8888aa';
 Chart.defaults.font.family = 'DM Sans';
 
+const loadJSON = path => fetch(path).then(r => r.json()).catch(() => []);
+
 Promise.all([
-  fetch('./data/kpis.json').then(r => r.json()),
-  fetch('./data/chart_areas.json').then(r => r.json()),
-  fetch('./data/chart_combos.json').then(r => r.json()),
-  fetch('./data/chart_protocols.json').then(r => r.json()),
-  fetch('./data/chart_age.json').then(r => r.json()),
-  fetch('./data/chart_cross.json').then(r => r.json()),
-  fetch('./data/chart_trend.json').then(r => r.json()),
-  fetch('./data/chart_clinics.json').then(r => r.json()),
-]).then(([kpis, areas, combos, protocols, age, cross, trend, clinics_data]) => {
+  loadJSON('./data/kpis.json'),
+  loadJSON('./data/chart_areas.json'),
+  loadJSON('./data/chart_combos.json'),
+  loadJSON('./data/chart_protocols.json'),
+  loadJSON('./data/chart_age.json'),
+  loadJSON('./data/chart_cross.json'),
+  loadJSON('./data/chart_trend.json'),
+  loadJSON('./data/chart_clinics.json'),
+  loadJSON('./data/chart_clinic_trend.json'),
+  loadJSON('./data/chart_clinic_protocols.json'),
+  loadJSON('./data/chart_clinic_age.json'),
+  loadJSON('./data/chart_clinic_areas.json'),
+]).then(([kpis, areas, combos, protocols, age, cross, trend, clinics_data, cTrend, cProto, cAge, cAreas]) => {
   kpis.forEach(r         => { D.kpis[r.month] = r; });
   areas.forEach(r        => { (D.areas[r.month]     = D.areas[r.month]     || []).push(r); });
   combos.forEach(r       => { (D.combos[r.month]    = D.combos[r.month]    || []).push(r); });
@@ -1076,16 +1079,26 @@ Promise.all([
   trend.forEach(r        => { (D.trend[r.month]     = D.trend[r.month]     || []).push(r); });
   clinics_data.forEach(r => { (D.clinics[r.month]   = D.clinics[r.month]   || []).push(r); });
 
-  const select = document.getElementById('month-select');
-  select.innerHTML = '';
+  clinics_data.forEach(r => { (CD.summary[r.month]   = CD.summary[r.month]   || []).push(r); });
+  cTrend.forEach(r       => { (CD.trend[r.month]     = CD.trend[r.month]     || []).push(r); });
+  cProto.forEach(r       => { (CD.protocols[r.month] = CD.protocols[r.month] || []).push(r); });
+  cAge.forEach(r         => { (CD.age[r.month]       = CD.age[r.month]       || []).push(r); });
+  cAreas.forEach(r       => { (CD.areas[r.month]     = CD.areas[r.month]     || []).push(r); });
+
+  const masterSelect = document.getElementById('month-select');
+  const clinicSelect = document.getElementById('clinic-month-select');
+  masterSelect.innerHTML = '';
+  clinicSelect.innerHTML = '';
   kpis.forEach(r => {
-    const opt = document.createElement('option');
-    opt.value = r.month;
-    opt.textContent = r.month_label;
-    select.appendChild(opt);
+    masterSelect.appendChild(new Option(r.month_label, r.month));
+    clinicSelect.appendChild(new Option(r.month_label, r.month));
   });
   activeMonth = kpis[0].month;
-  select.value = activeMonth;
+  clinicMonth = kpis[0].month;
+  masterSelect.value = activeMonth;
+  clinicSelect.value = clinicMonth;
+
+  populateClinicSelect();
 
   if (kpis[0] && kpis[0].last_updated) {
     const d   = new Date(kpis[0].last_updated);
@@ -1099,70 +1112,6 @@ Promise.all([
   document.getElementById('kpi-total-delta').textContent = 'data unavailable';
 });
 
-// ── PER-CLINIC HARDCODED DATA ─────────────────────────────────────────────────
-const clinics = {
-  canvas: {
-    name: "Canvas Cosmetic Clinic",
-    location: "Perth, WA",
-    color: "#7c5cbf",
-    submissions: 112,
-    completion: 94,
-    avgAreas: 3.4,
-    topProtocol: "Wrinkle Relaxing",
-    avgAge: 38,
-    areas: [78, 58, 72, 44, 39, 31, 18, 12],
-    protocols: [42, 28, 16, 14],
-    ages: [5, 20, 44, 24, 7],
-    weeklySubs: [8, 12, 9, 14, 18, 22, 29]
-  },
-  clarity: {
-    name: "Clarity Skin Clinic",
-    location: "Melbourne, VIC",
-    color: "#38c9b0",
-    submissions: 74,
-    completion: 89,
-    avgAreas: 2.9,
-    topProtocol: "Skin Quality",
-    avgAge: 42,
-    areas: [65, 44, 52, 71, 28, 58, 24, 19],
-    protocols: [12, 18, 58, 12],
-    ages: [4, 18, 38, 32, 8],
-    weeklySubs: [5, 9, 8, 12, 11, 14, 15]
-  },
-  aesthete: {
-    name: "The Aesthete",
-    location: "Sydney, NSW",
-    color: "#e060a0",
-    submissions: 43,
-    completion: 88,
-    avgAreas: 3.1,
-    topProtocol: "Volumisation",
-    avgAge: 36,
-    areas: [55, 71, 48, 62, 52, 22, 18, 9],
-    protocols: [22, 34, 36, 8],
-    ages: [8, 30, 42, 16, 4],
-    weeklySubs: [4, 6, 5, 8, 6, 7, 7]
-  },
-  glow: {
-    name: "Glow Medi Clinic",
-    location: "Brisbane, QLD",
-    color: "#f5a623",
-    submissions: 18,
-    completion: 94,
-    avgAreas: 3.6,
-    topProtocol: "Facial Contouring",
-    avgAge: 33,
-    areas: [60, 70, 44, 38, 55, 20, 38, 14],
-    protocols: [18, 26, 18, 38],
-    ages: [12, 34, 34, 16, 4],
-    weeklySubs: [1, 2, 3, 3, 4, 3, 2]
-  }
-};
-
-const areaNames    = ["Forehead", "Cheeks", "Eye area", "Lips", "Jawline", "Skin/texture", "Chin", "Neck"];
-const protocolNames = ["Wrinkle Relaxing", "Volumisation", "Skin Quality", "Facial Contouring"];
-const ageLabels     = ["Under 25", "25–34", "35–44", "45–54", "55+"];
-
 // ── PAGE SWITCHING ────────────────────────────────────────────────────────────
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1170,51 +1119,95 @@ function showPage(id) {
   document.querySelectorAll('.nav-tab').forEach((t, i) => {
     t.classList.toggle('active', (i === 0 && id === 'master') || (i === 1 && id === 'clinic'));
   });
-  if (id === 'clinic') renderClinic('canvas');
+  if (id === 'clinic') renderClinicPage();
 }
 
 // ── PER CLINIC VIEW ────────────────────────────────────────────────────────────
+// Separate per-clinic data stores, populated on load
+const CD = { summary:{}, trend:{}, protocols:{}, age:{}, areas:{} };
 let clinicCharts = [];
+let clinicMonth  = '';
+let clinicId     = '';
 
-function selectClinic(btn, id) {
-  document.querySelectorAll('.clinic-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderClinic(id);
+function setClinicMonth(month) {
+  clinicMonth = month;
+  populateClinicSelect();
+  renderClinicPage();
 }
 
-function renderClinic(id) {
-  const c = clinics[id];
+function setClinic(id) {
+  clinicId = id;
+  renderClinicPage();
+}
+
+// For a given month, build the list of clinics that have data
+function populateClinicSelect() {
+  const select = document.getElementById('clinic-select');
+  const list   = CD.summary[clinicMonth] || [];
+  const prev   = clinicId;
+  select.innerHTML = '';
+  list.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value       = c.clinicId;
+    opt.textContent = c.clinic_name;
+    select.appendChild(opt);
+  });
+  if (!list.length) {
+    clinicId = '';
+    return;
+  }
+  clinicId = list.some(c => c.clinicId === prev) ? prev : list[0].clinicId;
+  select.value = clinicId;
+}
+
+function renderClinicPage() {
   clinicCharts.forEach(ch => ch.destroy());
   clinicCharts = [];
 
-  document.getElementById('clinicContent').innerHTML = `
+  const summaryList = CD.summary[clinicMonth] || [];
+  const summary     = summaryList.find(c => c.clinicId === clinicId);
+  const container   = document.getElementById('clinicContent');
+
+  if (!summary) {
+    container.innerHTML = `<div class="notice">No data for the selected month and clinic.</div>`;
+    document.getElementById('clinic-subtitle').textContent =
+      'Individual clinic view — shareable with each clinic partner';
+    return;
+  }
+
+  document.getElementById('clinic-subtitle').textContent =
+    `${summary.clinic_name} · ${summary.month_label}`;
+
+  const color = pickClinicColor(clinicId);
+
+  container.innerHTML = `
     <div class="clinic-detail-grid">
       <div class="stat-card">
         <div class="stat-label">Submissions</div>
-        <div class="stat-value" style="color:${c.color}">${c.submissions}</div>
-        <div class="stat-delta">all time</div>
+        <div class="stat-value" style="color:${color}">${summary.total_submissions}</div>
+        <div class="stat-delta">${summary.month_label}</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Completion Rate</div>
-        <div class="stat-value" style="color: var(--teal)">${c.completion}%</div>
+        <div class="stat-value" style="color: var(--teal)">${summary.completion_rate}%</div>
         <div class="stat-delta">started → finished</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Avg Areas Tapped</div>
-        <div class="stat-value">${c.avgAreas}</div>
+        <div class="stat-value">${summary.avg_areas_per_consultation || '—'}</div>
         <div class="stat-delta">per submission</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Top Protocol</div>
-        <div class="stat-value" style="font-size:17px; letter-spacing:-0.3px; padding-top:8px; color:${c.color}">${c.topProtocol}</div>
-        <div class="stat-delta neutral">avg age ${c.avgAge}</div>
+        <div class="stat-value" style="font-size:17px; letter-spacing:-0.3px; padding-top:8px; color:${color}">${summary.top_protocol || '—'}</div>
+        <div class="stat-delta neutral">avg age ${summary.avg_age || '—'}</div>
       </div>
     </div>
 
     <div class="grid-3">
       <div class="card">
         <div class="card-title">Weekly Submissions</div>
-        <div class="card-desc">Last 7 weeks</div>
+        <div class="card-desc">${summary.month_label}</div>
         <div class="chart-wrap short"><canvas id="c_submissions"></canvas></div>
       </div>
       <div class="card">
@@ -1231,48 +1224,67 @@ function renderClinic(id) {
 
     <div class="card">
       <div class="card-title">Area of Concern Breakdown</div>
-      <div class="card-desc">% of ${c.name} submissions tapping each area</div>
+      <div class="card-desc">% of ${summary.clinic_name} submissions tapping each area</div>
       <div class="chart-wrap" style="height:180px"><canvas id="c_areas"></canvas></div>
     </div>
   `;
 
   const chartOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
 
+  // Weekly submissions line chart
+  const trendRows = (CD.trend[clinicMonth] || []).filter(r => r.clinicId === clinicId);
   clinicCharts.push(new Chart(document.getElementById('c_submissions'), {
     type: 'line',
     data: {
-      labels: ['W1','W2','W3','W4','W5','W6','W7'],
-      datasets: [{ data: c.weeklySubs, borderColor: c.color, backgroundColor: c.color+'30', fill: true, tension: 0.4, pointRadius: 3 }]
+      labels: trendRows.map(r => r.week_label),
+      datasets: [{ data: trendRows.map(r => Number(r.submissions)), borderColor: color, backgroundColor: color+'30', fill: true, tension: 0.4, pointRadius: 3 }]
     },
-    options: { ...chartOpts, scales: { x: { grid: { color: 'rgba(255,255,255,0.04)' } }, y: { grid: { color: 'rgba(255,255,255,0.04)' } } } }
+    options: { ...chartOpts, scales: { x: { grid: { color: 'rgba(255,255,255,0.04)' } }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true } } }
   }));
 
+  // Protocol mix donut
+  const protoRows = (CD.protocols[clinicMonth] || []).filter(r => r.clinicId === clinicId).slice(0, 6);
   clinicCharts.push(new Chart(document.getElementById('c_protocols'), {
     type: 'doughnut',
     data: {
-      labels: protocolNames,
-      datasets: [{ data: c.protocols, backgroundColor: protocolColors, borderWidth: 0, spacing: 2 }]
+      labels: protoRows.map(r => r.protocol),
+      datasets: [{ data: protoRows.map(r => Number(r.pct)), backgroundColor: protoRows.map((_, i) => protocolColors[i % protocolColors.length]), borderWidth: 0, spacing: 2 }]
     },
     options: { ...chartOpts, cutout: '60%' }
   }));
 
+  // Age distribution bar chart
+  const ageRows = ((CD.age[clinicMonth] || []).filter(r => r.clinicId === clinicId))
+    .sort((a, b) => ageOrder.indexOf(a.ageRange) - ageOrder.indexOf(b.ageRange));
   clinicCharts.push(new Chart(document.getElementById('c_ages'), {
     type: 'bar',
     data: {
-      labels: ageLabels,
-      datasets: [{ data: c.ages, backgroundColor: c.color+'99', borderColor: c.color, borderWidth: 1, borderRadius: 3 }]
+      labels: ageRows.map(r => ageRangeMap[r.ageRange] || r.ageRange),
+      datasets: [{ data: ageRows.map(r => Number(r.pct)), backgroundColor: color+'99', borderColor: color, borderWidth: 1, borderRadius: 3 }]
     },
     options: { ...chartOpts, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v+'%', font: { size: 9 } } } } }
   }));
 
+  // Areas of concern bar chart
+  const areaRows = ((CD.areas[clinicMonth] || []).filter(r => r.clinicId === clinicId)).slice(0, 10);
   clinicCharts.push(new Chart(document.getElementById('c_areas'), {
     type: 'bar',
     data: {
-      labels: areaNames,
-      datasets: [{ data: c.areas, backgroundColor: c.color+'99', borderColor: c.color, borderWidth: 1, borderRadius: 3 }]
+      labels: areaRows.map(r => r.area_name),
+      datasets: [{ data: areaRows.map(r => Number(r.pct)), backgroundColor: color+'99', borderColor: color, borderWidth: 1, borderRadius: 3 }]
     },
     options: { ...chartOpts, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v+'%' } } } }
   }));
+}
+
+// Assign a stable color per clinicId
+const clinicColorCache = {};
+function pickClinicColor(id) {
+  if (clinicColorCache[id]) return clinicColorCache[id];
+  const palette = ['#7c5cbf','#38c9b0','#e060a0','#f5a623','#9b7de0','#60dfcc','#ff8c69','#baa4ec'];
+  const idx = Object.keys(clinicColorCache).length % palette.length;
+  clinicColorCache[id] = palette[idx];
+  return clinicColorCache[id];
 }
 
 </script>

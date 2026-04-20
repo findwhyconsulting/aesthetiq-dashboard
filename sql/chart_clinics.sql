@@ -3,6 +3,7 @@ WITH base AS (
     c._id,
     c.clinicId,
     c.recommandation,
+    c.isConsultationSaved,
     DATE(c.createdAt)                                AS sub_date,
     FORMAT_DATE('%Y-%m', DATE(c.createdAt))          AS month,
     CASE c.ageRange
@@ -13,6 +14,17 @@ WITH base AS (
       WHEN '60+'   THEN 65.0
       ELSE NULL
     END                                              AS age_midpoint,
+    (CASE WHEN c.areasOfConcern_0_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_1_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_2_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_3_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_4_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_5_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_6_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_7_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_8_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_9_partName  != '' THEN 1 ELSE 0 END) +
+    (CASE WHEN c.areasOfConcern_10_partName != '' THEN 1 ELSE 0 END) AS area_count,
     c.areasOfConcern_0_partName,  c.areasOfConcern_1_partName,
     c.areasOfConcern_2_partName,  c.areasOfConcern_3_partName,
     c.areasOfConcern_4_partName,  c.areasOfConcern_5_partName,
@@ -37,32 +49,42 @@ areas_unpivoted AS (
   WHERE area IS NOT NULL AND area != ''
 ),
 
-area_ranks AS (
-  SELECT
-    month, clinicId, area,
-    COUNT(DISTINCT _id)                                                            AS cnt,
-    ROW_NUMBER() OVER (PARTITION BY month, clinicId ORDER BY COUNT(DISTINCT _id) DESC) AS rn
+area_counts AS (
+  SELECT month, clinicId, area, COUNT(DISTINCT _id) AS cnt
   FROM areas_unpivoted
   GROUP BY month, clinicId, area
 ),
 
-protocol_ranks AS (
+area_ranks AS (
   SELECT
-    b.month, b.clinicId, p.packageName,
-    COUNT(*)                                                                       AS cnt,
-    ROW_NUMBER() OVER (PARTITION BY b.month, b.clinicId ORDER BY COUNT(*) DESC)   AS rn
+    month, clinicId, area, cnt,
+    ROW_NUMBER() OVER (PARTITION BY month, clinicId ORDER BY cnt DESC) AS rn
+  FROM area_counts
+),
+
+protocol_counts AS (
+  SELECT b.month, b.clinicId, p.packageName, COUNT(*) AS cnt
   FROM base b
   JOIN `aesthetiq-490506.Prod_data.Packages` p ON b.recommandation = p._id
   GROUP BY b.month, b.clinicId, p.packageName
 ),
 
+protocol_ranks AS (
+  SELECT
+    month, clinicId, packageName, cnt,
+    ROW_NUMBER() OVER (PARTITION BY month, clinicId ORDER BY cnt DESC) AS rn
+  FROM protocol_counts
+),
+
 clinic_monthly_stats AS (
   SELECT
     month,
-    DATE_TRUNC(sub_date, MONTH)    AS period_start,
+    DATE_TRUNC(sub_date, MONTH)                                                    AS period_start,
     clinicId,
-    COUNT(DISTINCT _id)            AS total_submissions,
-    ROUND(AVG(age_midpoint), 0)    AS avg_age
+    COUNT(DISTINCT _id)                                                            AS total_submissions,
+    ROUND(COUNTIF(isConsultationSaved = TRUE) * 100.0 / NULLIF(COUNT(*), 0), 1)   AS completion_rate,
+    ROUND(AVG(area_count), 1)                                                      AS avg_areas_per_consultation,
+    ROUND(AVG(age_midpoint), 0)                                                    AS avg_age
   FROM base
   GROUP BY month, period_start, clinicId
 ),
@@ -82,8 +104,11 @@ top_protocols AS (
 SELECT
   cms.month,
   FORMAT_DATE('%B %Y', cms.period_start)                                         AS month_label,
+  cms.clinicId,
   u.clinicName                                                                   AS clinic_name,
   cms.total_submissions,
+  cms.completion_rate,
+  cms.avg_areas_per_consultation,
   ta.top_area,
   tp.top_protocol,
   cms.avg_age,
